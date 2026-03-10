@@ -10,9 +10,9 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Đặc Sản Việt — Hương Vị Đất Việt Thuần Khiết",
+  title: "Mộc Sơn — Đặc Sản Sơn La Thuần Khiết",
   description:
-    "Nền tảng đặc sản vùng miền uy tín — tuyển chọn và mang đến những đặc sản thuần khiết nhất từ khắp mọi miền đất nước Việt Nam.",
+    "Mộc Sơn — Nền tảng đặc sản Sơn La uy tín: thịt gác bếp, trà shan tuyết, mật ong rừng, mắc khén, hạt dổi, mận hậu, na sầu riêng và dâu tây Mộc Châu.",
 };
 
 export default function RootLayout({
