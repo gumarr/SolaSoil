@@ -3,21 +3,21 @@
 import { useInView } from "@/hooks/useInView";
 import LensImage from "@/components/ui/LensImage";
 import { CATEGORY_TABS, type Product } from "@/lib/data";
+import { useCart } from "@/context/CartContext";
 
 interface ProductsSectionProps {
   activeCategory: string;
   onCategoryChange: (id: string) => void;
   filteredProducts: Product[];
-  onAddToCart: () => void;
 }
 
 export default function ProductsSection({
   activeCategory,
   onCategoryChange,
   filteredProducts,
-  onAddToCart,
 }: ProductsSectionProps) {
   const [productsRef, productsInView] = useInView(0.05);
+  const { addItem } = useCart();
 
   return (
     <section id="products" className="py-20 bg-white">
@@ -39,7 +39,7 @@ export default function ProductsSection({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
           {filteredProducts.map((p, i) => (
             <div key={p.id} style={{ opacity: productsInView?1:0, transform: productsInView?"none":"translateY(32px)", transition: `opacity 0.65s ${i*80}ms, transform 0.65s ${i*80}ms` }}>
               <div className="group cursor-pointer">
@@ -50,7 +50,7 @@ export default function ProductsSection({
                         <span className="self-start bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">{p.badge}</span>
                       )}
                       <div className="mt-auto flex justify-end">
-                        <button className="bg-white/90 hover:bg-white text-green-900 text-[10px] font-bold px-2.5 py-1.5 rounded-full opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200 shadow" onClick={onAddToCart}>
+                        <button className="bg-white/90 hover:bg-white text-green-900 text-[10px] font-bold px-2.5 py-1.5 rounded-full opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200 shadow" onClick={() => addItem({ id: p.id, name: p.name, priceNum: p.priceNum, priceLabel: p.price, weight: p.weight, emoji: p.emoji, grad: p.grad })}>
                           + Giỏ hàng
                         </button>
                       </div>

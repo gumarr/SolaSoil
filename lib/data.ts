@@ -5,6 +5,7 @@ export interface Product {
   category: string;
   desc: string;
   price: string;
+  priceNum: number;
   weight: string;
   emoji: string;
   revealEmoji: string;
@@ -38,14 +39,14 @@ export interface Testimonial {
 }
 
 export const PRODUCTS: Product[] = [
-  { id: 1, name: "Thịt Gác Bếp",     categoryId: "food",   category: "Đồ Ăn",   desc: "Thịt trâu ướp mắc khén hun khói truyền thống người Thái",      price: "250.000đ", weight: "300g",  emoji: "🥩", revealEmoji: "🔥", grad: "from-stone-800 via-stone-700 to-amber-900",      revealGrad: "from-orange-700 via-red-700 to-rose-800",      badge: "Bán chạy" },
-  { id: 2, name: "Trà Shan Tuyết",    categoryId: "drink",  category: "Đồ Uống", desc: "Chè cổ thụ hái tay trên đỉnh núi cao hơn 1.000m",               price: "120.000đ", weight: "100g",  emoji: "🍃", revealEmoji: "☕", grad: "from-green-900 via-green-800 to-emerald-700",    revealGrad: "from-teal-700 via-emerald-600 to-green-500",   badge: null },
-  { id: 3, name: "Mật Ong Rừng",      categoryId: "drink",  category: "Đồ Uống", desc: "Mật ong nguyên chất từ rừng nguyên sinh Sơn La",                price: "185.000đ", weight: "500ml", emoji: "🍯", revealEmoji: "🫙", grad: "from-amber-700 via-yellow-600 to-amber-500",     revealGrad: "from-amber-900 via-orange-800 to-yellow-700",  badge: "Hữu cơ" },
-  { id: 4, name: "Mắc Khén",          categoryId: "spice",  category: "Gia Vị",  desc: "Tiêu rừng Tây Bắc — linh hồn ẩm thực Sơn La",                  price: "65.000đ",  weight: "100g",  emoji: "🫙", revealEmoji: "✨", grad: "from-stone-800 via-amber-900 to-stone-700",      revealGrad: "from-red-800 via-rose-700 to-orange-700",      badge: null },
-  { id: 5, name: "Hạt Dổi",           categoryId: "spice",  category: "Gia Vị",  desc: "Hạt dổi rừng già — gia vị quý hiếm của núi rừng",               price: "90.000đ",  weight: "50g",   emoji: "🌰", revealEmoji: "🌿", grad: "from-green-900 via-stone-800 to-green-800",      revealGrad: "from-yellow-700 via-orange-600 to-amber-500",  badge: "Hiếm" },
-  { id: 6, name: "Mận Hậu",           categoryId: "fruit",  category: "Hoa Quả", desc: "Mận hậu Sơn La — vỏ tím căng mẩy, ngọt mọng nước",             price: "45.000đ",  weight: "1kg",   emoji: "🍑", revealEmoji: "🌸", grad: "from-purple-900 via-violet-800 to-rose-700",     revealGrad: "from-rose-500 via-pink-400 to-fuchsia-400",    badge: "Đang Mùa" },
-  { id: 7, name: "Na Sầu Riêng",      categoryId: "fruit",  category: "Hoa Quả", desc: "Na sầu riêng Sơn La — thịt vàng ươm, vị béo ngậy",             price: "85.000đ",  weight: "1kg",   emoji: "🍈", revealEmoji: "💛", grad: "from-green-900 via-teal-800 to-green-700",       revealGrad: "from-yellow-500 via-amber-400 to-yellow-300",  badge: "Mới" },
-  { id: 8, name: "Dâu Tây Mộc Châu", categoryId: "fruit",  category: "Hoa Quả", desc: "Dâu tây tươi ngọt trồng trên cao nguyên Mộc Châu",              price: "55.000đ",  weight: "500g",  emoji: "🍓", revealEmoji: "❤️", grad: "from-rose-900 via-red-800 to-rose-700",          revealGrad: "from-pink-400 via-rose-300 to-red-300",        badge: "Theo Mùa" },
+  { id: 1, name: "Thịt Gác Bếp",     categoryId: "food",   category: "Đồ Ăn",   desc: "Thịt trâu ướp mắc khén hun khói truyền thống người Thái",      price: "250.000đ", priceNum: 250000, weight: "300g",  emoji: "🥩", revealEmoji: "🔥", grad: "from-stone-800 via-stone-700 to-amber-900",      revealGrad: "from-orange-700 via-red-700 to-rose-800",      badge: "Bán chạy" },
+  { id: 2, name: "Trà Shan Tuyết",    categoryId: "drink",  category: "Đồ Uống", desc: "Chè cổ thụ hái tay trên đỉnh núi cao hơn 1.000m",               price: "120.000đ", priceNum: 120000, weight: "100g",  emoji: "🍃", revealEmoji: "☕", grad: "from-green-900 via-green-800 to-emerald-700",    revealGrad: "from-teal-700 via-emerald-600 to-green-500",   badge: null },
+  { id: 3, name: "Mật Ong Rừng",      categoryId: "drink",  category: "Đồ Uống", desc: "Mật ong nguyên chất từ rừng nguyên sinh Sơn La",                price: "185.000đ", priceNum: 185000, weight: "500ml", emoji: "🍯", revealEmoji: "🫙", grad: "from-amber-700 via-yellow-600 to-amber-500",     revealGrad: "from-amber-900 via-orange-800 to-yellow-700",  badge: "Hữu cơ" },
+  { id: 4, name: "Mắc Khén",          categoryId: "spice",  category: "Gia Vị",  desc: "Tiêu rừng Tây Bắc — linh hồn ẩm thực Sơn La",                  price: "65.000đ",  priceNum:  65000, weight: "100g",  emoji: "🫙", revealEmoji: "✨", grad: "from-stone-800 via-amber-900 to-stone-700",      revealGrad: "from-red-800 via-rose-700 to-orange-700",      badge: null },
+  { id: 5, name: "Hạt Dổi",           categoryId: "spice",  category: "Gia Vị",  desc: "Hạt dổi rừng già — gia vị quý hiếm của núi rừng",               price: "90.000đ",  priceNum:  90000, weight: "50g",   emoji: "🌰", revealEmoji: "🌿", grad: "from-green-900 via-stone-800 to-green-800",      revealGrad: "from-yellow-700 via-orange-600 to-amber-500",  badge: "Hiếm" },
+  { id: 6, name: "Mận Hậu",           categoryId: "fruit",  category: "Hoa Quả", desc: "Mận hậu Sơn La — vỏ tím căng mẩy, ngọt mọng nước",             price: "45.000đ",  priceNum:  45000, weight: "1kg",   emoji: "🍑", revealEmoji: "🌸", grad: "from-purple-900 via-violet-800 to-rose-700",     revealGrad: "from-rose-500 via-pink-400 to-fuchsia-400",    badge: "Đang Mùa" },
+  { id: 7, name: "Na Sầu Riêng",      categoryId: "fruit",  category: "Hoa Quả", desc: "Na sầu riêng Sơn La — thịt vàng ươm, vị béo ngậy",             price: "85.000đ",  priceNum:  85000, weight: "1kg",   emoji: "🍈", revealEmoji: "💛", grad: "from-green-900 via-teal-800 to-green-700",       revealGrad: "from-yellow-500 via-amber-400 to-yellow-300",  badge: "Mới" },
+  { id: 8, name: "Dâu Tây Mộc Châu", categoryId: "fruit",  category: "Hoa Quả", desc: "Dâu tây tươi ngọt trồng trên cao nguyên Mộc Châu",              price: "55.000đ",  priceNum:  55000, weight: "500g",  emoji: "🍓", revealEmoji: "❤️", grad: "from-rose-900 via-red-800 to-rose-700",          revealGrad: "from-pink-400 via-rose-300 to-red-300",        badge: "Theo Mùa" },
 ];
 
 export const CATEGORY_TABS: CategoryTab[] = [

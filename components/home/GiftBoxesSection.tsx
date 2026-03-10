@@ -1,13 +1,17 @@
 "use client";
 
 import { useInView } from "@/hooks/useInView";
+import { useCart } from "@/context/CartContext";
 
-interface GiftBoxesSectionProps {
-  onAddToCart: () => void;
-}
+const GIFT_BOXES = [
+  { id: 101, name: "Hộp Rừng Núi",         desc: "Thịt Gác Bếp, Mắc Khén, Hạt Dổi, Trà Shan Tuyết",   price: "450.000đ", priceNum: 450000, grad: "from-stone-800 to-green-900", emoji: "🏕️", weight: "Combo" },
+  { id: 102, name: "Hộp Cao Nguyên Xanh",  desc: "Mật Ong Rừng, Trà Shan Tuyết Cổ Thụ, Mận Hậu Sấy", price: "380.000đ", priceNum: 380000, grad: "from-green-800 to-teal-700",   emoji: "🌿", weight: "Combo" },
+  { id: 103, name: "Hộp Trái Cây Mùa Vụ", desc: "Mận Hậu, Na Sầu Riêng, Dâu Tây Mộc Châu",           price: "320.000đ", priceNum: 320000, grad: "from-rose-800 to-purple-800",  emoji: "🍑", weight: "Combo" },
+];
 
-export default function GiftBoxesSection({ onAddToCart }: GiftBoxesSectionProps) {
+export default function GiftBoxesSection() {
   const [giftRef, giftInView] = useInView(0.05);
+  const { addItem } = useCart();
 
   return (
     <section className="py-20 bg-amber-50">
@@ -17,20 +21,16 @@ export default function GiftBoxesSection({ onAddToCart }: GiftBoxesSectionProps)
           <h2 className="text-4xl sm:text-5xl font-extrabold text-green-900 mt-2">Hộp Quà Đặc Sản Sơn La</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {[
-            { title: "Hộp Rừng Núi",         desc: "Thịt Gác Bếp, Mắc Khén, Hạt Dổi, Trà Shan Tuyết",   price: "450.000đ", grad: "from-stone-800 to-green-900", emoji: "🏕️" },
-            { title: "Hộp Cao Nguyên Xanh",  desc: "Mật Ong Rừng, Trà Shan Tuyết Cổ Thụ, Mận Hậu Sấy", price: "380.000đ", grad: "from-green-800 to-teal-700",   emoji: "🌿" },
-            { title: "Hộp Trái Cây Mùa Vụ", desc: "Mận Hậu, Na Sầu Riêng, Dâu Tây Mộc Châu",           price: "320.000đ", grad: "from-rose-800 to-purple-800",  emoji: "🍑" },
-          ].map((box, i) => (
-            <div key={box.title} style={{ opacity: giftInView?1:0, transform: giftInView?"none":"translateY(32px)", transition: `opacity 0.6s ${i*120}ms, transform 0.6s ${i*120}ms` }}>
+          {GIFT_BOXES.map((box, i) => (
+            <div key={box.id} style={{ opacity: giftInView?1:0, transform: giftInView?"none":"translateY(32px)", transition: `opacity 0.6s ${i*120}ms, transform 0.6s ${i*120}ms` }}>
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-amber-100 group">
                 <div className={`h-44 bg-linear-to-br ${box.grad} flex items-center justify-center text-6xl group-hover:scale-105 transition-transform duration-500`}>{box.emoji}</div>
                 <div className="p-5">
-                  <h3 className="font-bold text-green-900 text-base mb-1">{box.title}</h3>
+                  <h3 className="font-bold text-green-900 text-base mb-1">{box.name}</h3>
                   <p className="text-green-700 text-sm mb-4 leading-relaxed">{box.desc}</p>
                   <div className="flex items-center justify-between">
                     <span className="font-extrabold text-amber-700 text-lg">{box.price}</span>
-                    <button onClick={onAddToCart} className="bg-green-800 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2 rounded-full transition-all hover:shadow-md hover:-translate-y-0.5">+ Giỏ hàng</button>
+                    <button onClick={() => addItem({ id: box.id, name: box.name, priceNum: box.priceNum, priceLabel: box.price, weight: box.weight, emoji: box.emoji, grad: box.grad })} className="bg-green-800 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2 rounded-full transition-all hover:shadow-md hover:-translate-y-0.5">+ Giỏ hàng</button>
                   </div>
                 </div>
               </div>

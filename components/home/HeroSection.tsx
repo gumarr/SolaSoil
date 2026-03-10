@@ -3,11 +3,7 @@
 import { useInView } from "@/hooks/useInView";
 import LensImage from "@/components/ui/LensImage";
 
-interface HeroSectionProps {
-  onAddToCart: () => void;
-}
-
-export default function HeroSection({ onAddToCart }: HeroSectionProps) {
+export default function HeroSection() {
   const [heroRef, heroInView] = useInView(0.04);
 
   return (

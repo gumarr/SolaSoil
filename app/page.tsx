@@ -16,31 +16,27 @@ import NewsletterSection from "@/components/home/NewsletterSection";
 import Footer from "@/components/home/Footer";
 
 export default function Home() {
-  const [cartCount, setCartCount]           = useState(0);
   const [activeCategory, setActiveCategory] = useState("all");
 
   const filteredProducts = activeCategory === "all"
     ? PRODUCTS
     : PRODUCTS.filter((p) => p.categoryId === activeCategory);
 
-  const add = () => setCartCount((c) => c + 1);
-
   return (
     <div className="min-h-screen bg-white">
       <AnnouncementBar />
-      <NavBar cartCount={cartCount} onAddToCart={add} />
-      <HeroSection onAddToCart={add} />
+      <NavBar />
+      <HeroSection />
       <ValueStrip />
       <ProductsSection
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
         filteredProducts={filteredProducts}
-        onAddToCart={add}
       />
       <QuoteSection />
       <CategoriesSection onCategoryChange={setActiveCategory} />
       <StorySection />
-      <GiftBoxesSection onAddToCart={add} />
+      <GiftBoxesSection />
       <TestimonialsSection />
       <NewsletterSection />
       <Footer />
