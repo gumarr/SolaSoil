@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const NAV_LINKS = [
   ["/products",   "Sản Phẩm"],
@@ -14,6 +16,27 @@ const NAV_LINKS = [
 export default function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { count, openCart } = useCart();
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
 
   return (
     <nav className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-green-100 shadow-sm">
@@ -48,7 +71,35 @@ export default function NavBar() {
               <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{count}</span>
             )}
           </button>
-          <Link href="/products" className="hidden sm:inline-flex items-center gap-1.5 bg-green-800 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-all hover:shadow-lg hover:shadow-green-900/30 hover:-translate-y-0.5">
+          
+          {user ? (
+            <div className="relative group/user">
+              <button className="flex items-center gap-2 bg-green-50 text-green-800 hover:bg-green-100 px-3 py-2 rounded-full transition-colors font-medium text-sm">
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="max-w-[100px] truncate hidden sm:block">{user.user_metadata?.full_name || user.email}</span>
+              </button>
+              
+              <div className="absolute right-0 top-full pt-2 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all duration-200 min-w-[200px]">
+                <div className="bg-white rounded-xl shadow-xl border border-green-100 overflow-hidden py-1">
+                  <div className="px-4 py-3 border-b border-gray-100 sm:hidden">
+                    <p className="text-sm font-medium text-gray-900 truncate">{user.user_metadata?.full_name || user.email}</p>
+                  </div>
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Đăng xuất
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Link href="/login" className="hidden sm:inline-flex items-center gap-1.5 bg-green-50 text-green-800 hover:bg-green-100 text-sm font-semibold px-4 py-2 rounded-full transition-all">
+              Đăng nhập
+            </Link>
+          )}
+
+          <Link href="/products" className="hidden lg:inline-flex items-center gap-1.5 bg-green-800 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-all hover:shadow-lg hover:shadow-green-900/30 hover:-translate-y-0.5">
             Mua Ngay
           </Link>
           <button className="md:hidden text-green-800 p-1" onClick={() => setMobileMenuOpen((v) => !v)}>
@@ -64,6 +115,9 @@ export default function NavBar() {
           {NAV_LINKS.map(([href, label]) => (
             <Link key={label} href={href} className="text-green-900 font-semibold" onClick={() => setMobileMenuOpen(false)}>{label}</Link>
           ))}
+          {!user && (
+            <Link href="/login" className="text-green-800 font-semibold border-t border-gray-100 pt-4" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
+          )}
         </div>
       )}
     </nav>
