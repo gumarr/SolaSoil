@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 1. BẢNG DANH MỤC (Categories)
+model Category {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String    @unique
+  description String?
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+// 2. BẢNG SẢN PHẨM OCOP (Products)
+model Product {
+  id                 String    @id @default(uuid()) @db.Uuid
+  categoryId         String?   @map("category_id") @db.Uuid
+  name               String
+  description        String?
+  price              Decimal   @db.Decimal
+  stockQuantity      Int?      @default(0) @map("stock_quantity")
+  imageUrl           String?   @map("image_url")
+  certificationLevel String?   @map("certification_level")
+  originStory        String?   @map("origin_story")
+  isActive           Boolean?  @default(true) @map("is_active")
+  createdAt          DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  comboItems ComboItem[]
+  reviews    Review[]
+
+  @@map("products")
+}
+
+// 3. BẢNG NGƯỜI DÙNG & ADMIN (Profiles)
+// Đồng bộ với Auth.users của Supabase
+model Profile {
+  id            String    @id @db.Uuid // Gắn với auth.users(id) của Supabase, không tự gen
+  fullName      String?   @map("full_name")
+  phoneNumber   String?   @map("phone_number")
+  address       String?
+  avatarUrl     String?   @map("avatar_url")
+  role          String?   @default("customer") // Phân quyền Admin
+  loyaltyPoints Int?      @default(0) @map("loyalty_points")
+  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  orders  Order[]
+  reviews Review[]
+
+  @@map("profiles")
+}
+
+// 4. BẢNG COMBO QUÀ TẶNG CỐ ĐỊNH (Gift Combos)
+model GiftCombo {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  basePrice   Decimal   @map("base_price") @db.Decimal
+  imageUrl    String?   @map("image_url")
+  comboType   String?   @default("standard") @map("combo_type")
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  items ComboItem[]
+
+  @@map("gift_combos")
+}
+
+// 5. CHI TIẾT SẢN PHẨM TRONG COMBO (Combo Items)
+model ComboItem {
+  id        String  @id @default(uuid()) @db.Uuid
+  comboId   String? @map("combo_id") @db.Uuid
+  productId String? @map("product_id") @db.Uuid
+  quantity  Int?    @default(1)
+
+  // Relations
+  combo   GiftCombo? @relation(fields: [comboId], references: [id], onDelete: Cascade)
+  product Product?   @relation(fields: [productId], references: [id])
+
+  @@map("combo_items")
+}
+
+// 6. BẢNG ĐƠN HÀNG (Orders)
+model Order {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String?   @map("user_id") @db.Uuid
+  totalAmount     Decimal   @map("total_amount") @db.Decimal
+  status          String?   @default("pending") // pending, processing, shipped, cancelled
+  shippingAddress String    @map("shipping_address")
+  paymentMethod   String?   @map("payment_method")
+  notes           String?
+  customComboData Json?     @map("custom_combo_data") @db.JsonB
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  user Profile? @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}
+
+// 7. BẢNG ĐÁNH GIÁ (Reviews)
+model Review {
+  id         String    @id @default(uuid()) @db.Uuid
+  productId  String?   @map("product_id") @db.Uuid
+  userId     String?   @map("user_id") @db.Uuid
+  rating     Int?
+  comment    String?
+  isVerified Boolean?  @default(false) @map("is_verified")
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  product Product? @relation(fields: [productId], references: [id])
+  user    Profile? @relation(fields: [userId], references: [id])
+
+  @@map("reviews")
+}
