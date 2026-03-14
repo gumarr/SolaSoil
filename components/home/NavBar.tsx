@@ -7,10 +7,11 @@ import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 const NAV_LINKS = [
-  ["/products",   "Sản Phẩm"],
-  ["/categories", "Danh Mục"],
-  ["/about",      "Về Chúng Tôi"],
-  ["/#contact",   "Liên Hệ"],
+  ["/products",         "Sản Phẩm"],
+  ["/create-gift-box",  "Tạo Gói Quà"],
+  ["/categories",       "Danh Mục"],
+  ["/about",            "Về Chúng Tôi"],
+  ["/#contact",         "Liên Hệ"],
 ] as const;
 
 export default function NavBar() {
