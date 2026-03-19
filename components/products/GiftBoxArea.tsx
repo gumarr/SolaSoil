@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import type { Product } from "@/lib/data";
+import { PRODUCT_IMAGES } from "@/lib/imageConfig";
 
 export interface GiftBoxItem {
   product: Product;
@@ -23,163 +23,267 @@ export default function GiftBoxArea({
   onDrop,
   isDragOver,
 }: GiftBoxAreaProps) {
-  const getTotalPrice = () => {
-    return items.reduce((sum, item) => sum + item.product.priceNum * item.quantity, 0);
-  };
 
-  const getTotalWeight = () => {
-    return items.reduce((sum, item) => {
-      const weight = parseFloat(item.product.weight);
-      return sum + (isNaN(weight) ? 0 : weight * item.quantity);
+  const getTotalPrice = () =>
+    items.reduce((s, i) => s + i.product.priceNum * i.quantity, 0);
+
+  const getTotalWeight = () =>
+    items.reduce((s, i) => {
+      const w = parseFloat(i.product.weight);
+      return s + (isNaN(w) ? 0 : w * i.quantity);
     }, 0);
-  };
 
-  const handleRemoveItem = (productId: number) => {
-    onItemsChange(items.filter(item => item.product.id !== productId));
-  };
+  const handleRemove = (id: number) =>
+    onItemsChange(items.filter(i => i.product.id !== id));
 
-  const handleUpdateQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      handleRemoveItem(productId);
-      return;
-    }
-    onItemsChange(
-      items.map(item =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  const handleClear = () => {
-    onItemsChange([]);
+  const handleQty = (id: number, qty: number) => {
+    if (qty <= 0) { handleRemove(id); return; }
+    onItemsChange(items.map(i => i.product.id === id ? { ...i, quantity: qty } : i));
   };
 
   return (
     <div
       onDragOver={onDragOver}
       onDrop={onDrop}
-      className={`flex flex-col h-full border-l border-gray-200 transition-all ${
-        isDragOver ? "bg-green-50" : "bg-white"
-      }`}
+      className="flex flex-col h-full transition-all duration-300"
+      style={{
+        background: isDragOver ? "rgba(201,222,202,0.20)" : "rgba(250,248,244,0.80)",
+      }}
     >
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-bold text-gray-900">Gói Quà Của Bạn</h2>
-        <p className="text-sm text-gray-600">
-          {items.length} sản phẩm | {items.reduce((s, i) => s + i.quantity, 0)} mục
-        </p>
+
+      {/* ── Header ── */}
+      <div
+        className="px-4 py-3.5 flex items-center justify-between"
+        style={{
+          background: "rgba(250,248,244,0.95)",
+          backdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(201,222,202,0.22)",
+        }}
+      >
+        <div>
+          <h2 className="font-bold text-sm" style={{ color: "#1a2e1b" }}>
+            Gói Quà Của Bạn
+          </h2>
+          <p className="text-[11px] mt-0.5" style={{ color: "#9dc49e" }}>
+            {items.length} loại · {items.reduce((s, i) => s + i.quantity, 0)} mục
+          </p>
+        </div>
+        <div
+          className="text-xl w-9 h-9 rounded-xl flex items-center justify-center"
+          style={{ background: "rgba(157,196,158,0.15)" }}
+        >
+          🎁
+        </div>
       </div>
 
-      {/* Empty State */}
+      {/* ── Empty state ── */}
       {items.length === 0 ? (
         <div
-          className={`flex-1 flex flex-col items-center justify-center p-8 text-center transition-colors ${
-            isDragOver
-              ? "bg-green-100 border-2 border-dashed border-green-400"
-              : "bg-gray-50 border-2 border-dashed border-gray-300"
-          }`}
+          className="flex-1 flex flex-col items-center justify-center p-6 text-center
+                     transition-all duration-300 m-3 rounded-2xl"
+          style={{
+            background: isDragOver
+              ? "rgba(201,222,202,0.25)"
+              : "rgba(255,255,255,0.50)",
+            border: `2px dashed ${isDragOver ? "rgba(111,164,112,0.60)" : "rgba(201,222,202,0.45)"}`,
+          }}
         >
-          <div className="text-5xl mb-3">🎁</div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-1">
-            Tạo Gói Quà Của Bạn
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-4
+                       transition-transform duration-300"
+            style={{
+              background: isDragOver ? "rgba(157,196,158,0.25)" : "rgba(157,196,158,0.12)",
+              transform: isDragOver ? "scale(1.08)" : "scale(1)",
+            }}
+          >
+            {isDragOver ? "✨" : "🎁"}
+          </div>
+          <h3 className="font-bold text-sm mb-1.5" style={{ color: "#2f5632" }}>
+            {isDragOver ? "Thả vào đây!" : "Tạo Gói Quà Của Bạn"}
           </h3>
-          <p className="text-sm text-gray-600">
-            Kéo sản phẩm vào đây để tạo gói quà
-          </p>
-          <p className="text-xs text-gray-500 mt-2">
-            Hoặc nhấp vào "Thêm" trên sản phẩm
+          <p className="text-xs leading-relaxed" style={{ color: "#9dc49e" }}>
+            {isDragOver
+              ? "Sản phẩm sẽ được thêm vào gói quà"
+              : "Kéo sản phẩm từ danh sách bên trái vào đây"}
           </p>
         </div>
       ) : (
         <>
-          {/* Items List */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {items.map(item => (
-              <div
-                key={item.product.id}
-                className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200 hover:shadow-md transition-shadow"
-              >
-                {/* Item Header */}
-                <div className="flex items-start gap-3 mb-2">
-                  <div className="text-3xl">{item.product.emoji}</div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 text-sm">
-                      {item.product.name}
-                    </h4>
-                    <p className="text-xs text-gray-600">
-                      {item.product.weight}
-                    </p>
+          {/* ── Items list ── */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+            {items.map(item => {
+              const imgs = PRODUCT_IMAGES[item.product.id];
+              return (
+                <div
+                  key={item.product.id}
+                  className="rounded-xl overflow-hidden transition-all duration-200"
+                  style={{
+                    background: "rgba(255,255,255,0.90)",
+                    border: "1px solid rgba(201,222,202,0.30)",
+                    boxShadow: "0 2px 8px rgba(47,86,50,0.05)",
+                  }}
+                >
+                  {/* Top row */}
+                  <div className="flex items-center gap-3 p-3">
+                    {/* Thumbnail */}
+                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
+                      style={{ background: "rgba(157,196,158,0.12)" }}>
+                      {imgs?.thumb ? (
+                        <img
+                          src={imgs.thumb}
+                          alt={item.product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className={`w-full h-full bg-gradient-to-br ${item.product.grad}
+                                        flex items-center justify-center text-xl`}>
+                          {item.product.emoji}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Name + price */}
+                    <div className="flex-1 min-w-0">
+                      <h4
+                        className="font-bold text-xs leading-snug line-clamp-2 mb-0.5"
+                        style={{ color: "#1a2e1b" }}
+                      >
+                        {item.product.name}
+                      </h4>
+                      <p className="text-[10px]" style={{ color: "#9dc49e" }}>
+                        {item.product.weight}
+                      </p>
+                      <p className="font-extrabold text-xs mt-0.5" style={{ color: "#d4922b" }}>
+                        {item.product.price}
+                      </p>
+                    </div>
+
+                    {/* Delete */}
+                    <button
+                      onClick={() => handleRemove(item.product.id)}
+                      className="p-1.5 rounded-lg transition-all duration-200 shrink-0"
+                      style={{ color: "rgba(201,222,202,0.60)" }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = "#ef4444";
+                        e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = "rgba(201,222,202,0.60)";
+                        e.currentTarget.style.background = "transparent";
+                      }}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleRemoveItem(item.product.id)}
-                    className="text-gray-400 hover:text-red-600 transition-colors p-1"
-                    title="Xóa"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                  </button>
-                </div>
 
-                {/* Price */}
-                <div className="text-sm font-bold text-green-800 mb-3">
-                  {item.product.price}
-                </div>
-
-                {/* Quantity Controls */}
-                <div className="flex items-center gap-2 bg-white rounded border border-gray-300">
-                  <button
-                    onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
-                    className="px-2 py-1 text-gray-600 hover:bg-gray-100 font-bold"
+                  {/* Bottom row — qty + subtotal */}
+                  <div
+                    className="flex items-center justify-between px-3 py-2"
+                    style={{ borderTop: "1px solid rgba(201,222,202,0.20)" }}
                   >
-                    −
-                  </button>
-                  <span className="flex-1 text-center font-semibold text-gray-900">
-                    {item.quantity}
-                  </span>
-                  <button
-                    onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
-                    className="px-2 py-1 text-gray-600 hover:bg-gray-100 font-bold"
-                  >
-                    +
-                  </button>
-                </div>
+                    {/* Quantity stepper */}
+                    <div
+                      className="flex items-center rounded-lg overflow-hidden"
+                      style={{
+                        border: "1px solid rgba(201,222,202,0.40)",
+                        background: "rgba(255,255,255,0.80)",
+                      }}
+                    >
+                      <button
+                        onClick={() => handleQty(item.product.id, item.quantity - 1)}
+                        className="w-7 h-7 flex items-center justify-center font-bold text-sm
+                                   transition-colors hover:bg-[rgba(47,86,50,0.08)]"
+                        style={{ color: "#4d8550" }}
+                      >
+                        −
+                      </button>
+                      <span
+                        className="w-7 text-center font-bold text-sm"
+                        style={{ color: "#1a2e1b" }}
+                      >
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => handleQty(item.product.id, item.quantity + 1)}
+                        className="w-7 h-7 flex items-center justify-center font-bold text-sm
+                                   transition-colors hover:bg-[rgba(47,86,50,0.08)]"
+                        style={{ color: "#4d8550" }}
+                      >
+                        +
+                      </button>
+                    </div>
 
-                {/* Item Total */}
-                <div className="text-xs text-gray-600 mt-2">
-                  Tổng: <span className="font-bold">
-                    {((item.product.priceNum * item.quantity) / 1000).toFixed(0)}k đ
-                  </span>
+                    {/* Line total */}
+                    <span className="text-xs font-semibold" style={{ color: "#6fa470" }}>
+                      Tổng:{" "}
+                      <span className="font-extrabold" style={{ color: "#d4922b" }}>
+                        {((item.product.priceNum * item.quantity) / 1000).toFixed(0)}k đ
+                      </span>
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Summary */}
-          <div className="border-t border-gray-200 p-4 bg-gray-50 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Tổng khối lượng:</span>
-              <span className="font-semibold text-gray-900">
-                {getTotalWeight().toFixed(0)}
-                {getTotalWeight() > 1000 ? " kg" : " g"}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Số lượng sản phẩm:</span>
-              <span className="font-semibold text-gray-900">
-                {items.reduce((s, i) => s + i.quantity, 0)}
-              </span>
-            </div>
-            <div className="pt-2 border-t border-gray-200">
-              <div className="flex justify-between">
-                <span className="text-base font-bold text-gray-900">Tổng giá:</span>
-                <span className="text-lg font-bold text-green-800">
-                  {(getTotalPrice() / 1000).toFixed(0)}k đ
+          {/* ── Summary footer ── */}
+          <div
+            className="p-4 space-y-3"
+            style={{
+              background: "rgba(250,248,244,0.97)",
+              backdropFilter: "blur(16px)",
+              borderTop: "1px solid rgba(201,222,202,0.22)",
+            }}
+          >
+            {/* Meta rows */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs">
+                <span style={{ color: "#6fa470" }}>Tổng khối lượng</span>
+                <span className="font-semibold" style={{ color: "#2f5632" }}>
+                  {getTotalWeight().toFixed(0)}{getTotalWeight() > 1000 ? " kg" : " g"}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span style={{ color: "#6fa470" }}>Số mục</span>
+                <span className="font-semibold" style={{ color: "#2f5632" }}>
+                  {items.reduce((s, i) => s + i.quantity, 0)}
                 </span>
               </div>
             </div>
+
+            {/* Grand total */}
+            <div
+              className="flex justify-between items-center pt-3"
+              style={{ borderTop: "1px solid rgba(201,222,202,0.22)" }}
+            >
+              <span className="font-bold text-sm" style={{ color: "#1a2e1b" }}>Tổng giá</span>
+              <span className="font-extrabold text-lg" style={{ color: "#d4922b" }}>
+                {(getTotalPrice() / 1000).toFixed(0)}k đ
+              </span>
+            </div>
+
+            {/* Clear all */}
             <button
-              onClick={handleClear}
-              className="w-full mt-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded border border-gray-300 transition-colors"
+              onClick={() => onItemsChange([])}
+              className="w-full py-2 rounded-xl text-xs font-semibold transition-all duration-200"
+              style={{
+                border: "1px solid rgba(201,222,202,0.40)",
+                color: "#6fa470",
+                background: "transparent",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "rgba(239,68,68,0.06)";
+                e.currentTarget.style.color = "#ef4444";
+                e.currentTarget.style.borderColor = "rgba(239,68,68,0.20)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "#6fa470";
+                e.currentTarget.style.borderColor = "rgba(201,222,202,0.40)";
+              }}
             >
               Xóa Tất Cả
             </button>
