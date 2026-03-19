@@ -1,0 +1,321 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-be-vietnam-pro);
+}
+
+/* ============================================
+   DESIGN TOKENS — MỘCSƠN LUXURY SYSTEM
+   ============================================ */
+:root {
+  /* Sage Green Palette */
+  --sage-50:  #f4f7f4;
+  --sage-100: #e8f0e8;
+  --sage-200: #c9deca;
+  --sage-300: #9dc49e;
+  --sage-400: #6fa470;
+  --sage-500: #4d8550;
+  --sage-600: #3a6b3d;
+  --sage-700: #2f5632;
+  --sage-800: #274529;
+  --sage-900: #1a2e1b;
+  --sage-950: #0d1a0e;
+
+  /* Warm Ivory */
+  --ivory:     #faf8f4;
+  --ivory-100: #f5f1ea;
+  --ivory-200: #ede7d9;
+
+  /* Wood / Amber accents */
+  --wood-100: #fef3e2;
+  --wood-300: #f6c87a;
+  --wood-500: #d4922b;
+  --wood-700: #9a6420;
+
+  /* Liquid Glass */
+  --glass-bg:     rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-shadow: 0 8px 32px rgba(47, 86, 50, 0.10), 0 2px 8px rgba(47, 86, 50, 0.06);
+  --glass-shadow-lg: 0 24px 64px rgba(47, 86, 50, 0.16), 0 4px 16px rgba(47, 86, 50, 0.08);
+
+  /* Typography */
+  --font-display: "Be Vietnam Pro", sans-serif;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ivory);
+  color: var(--sage-900);
+  font-family: var(--font-be-vietnam-pro), "Be Vietnam Pro", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--sage-50); }
+::-webkit-scrollbar-thumb { background: var(--sage-200); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sage-300); }
+
+/* ============================================
+   LIQUID GLASS UTILITY
+   ============================================ */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-dark {
+  background: rgba(26, 46, 27, 0.72);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.32);
+}
+
+.glass-sage {
+  background: rgba(201, 222, 202, 0.45);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(157, 196, 158, 0.40);
+  box-shadow: var(--glass-shadow);
+}
+
+/* ============================================
+   ANIMATED MESH GRADIENT BACKGROUND
+   ============================================ */
+.mesh-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.mesh-bg::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(157,196,158,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 80%, rgba(201,222,202,0.28) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at 60% 10%, rgba(244,247,244,0.40) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 10% 70%, rgba(214,185,122,0.14) 0%, transparent 50%);
+  animation: meshDrift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mesh-bg-dark::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(47,86,50,0.70) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 80%, rgba(26,46,27,0.90) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at 60% 10%, rgba(39,69,41,0.60) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 10% 70%, rgba(154,100,32,0.18) 0%, transparent 50%);
+}
+
+@keyframes meshDrift {
+  0%   { transform: translate(0,0) rotate(0deg) scale(1); }
+  33%  { transform: translate(3%,5%) rotate(2deg) scale(1.05); }
+  66%  { transform: translate(-2%,3%) rotate(-1.5deg) scale(1.02); }
+  100% { transform: translate(4%,-2%) rotate(1deg) scale(1.06); }
+}
+
+/* ============================================
+   BLOB ANIMATION
+   ============================================ */
+.blob {
+  border-radius: 60% 40% 70% 30% / 50% 60% 40% 70%;
+  animation: blobMorph 12s ease-in-out infinite;
+}
+.blob-delay {
+  border-radius: 40% 60% 30% 70% / 60% 40% 70% 30%;
+  animation: blobMorph 16s ease-in-out 4s infinite reverse;
+}
+
+@keyframes blobMorph {
+  0%, 100% { border-radius: 60% 40% 70% 30% / 50% 60% 40% 70%; }
+  20%  { border-radius: 30% 70% 40% 60% / 70% 30% 60% 40%; }
+  40%  { border-radius: 70% 30% 50% 50% / 40% 60% 30% 70%; }
+  60%  { border-radius: 40% 60% 60% 40% / 60% 40% 50% 50%; }
+  80%  { border-radius: 50% 50% 30% 70% / 30% 70% 70% 30%; }
+}
+
+/* ============================================
+   FLOATING ANIMATION
+   ============================================ */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-12px) rotate(0.8deg); }
+  66%       { transform: translateY(-6px) rotate(-0.5deg); }
+}
+.float { animation: floatY 5s ease-in-out infinite; }
+.float-2 { animation: floatY 6.5s ease-in-out 1.5s infinite; }
+.float-3 { animation: floatY 4.8s ease-in-out 3s infinite; }
+
+/* ============================================
+   LIQUID BUTTON
+   ============================================ */
+.btn-liquid {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-liquid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 150%, rgba(255,255,255,0.25) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.btn-liquid:hover::before { opacity: 1; }
+.btn-liquid:hover { transform: translateY(-3px) scale(1.02); }
+.btn-liquid:active { transform: translateY(0px) scale(0.98); transition-duration: 0.1s; }
+
+/* ============================================
+   PAGE REVEAL ANIMATIONS
+   ============================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.anim-fade-up   { animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) forwards; opacity: 0; }
+.anim-fade-in   { animation: fadeIn 0.8s ease forwards; opacity: 0; }
+.anim-slide-right { animation: slideRight 0.7s cubic-bezier(0.22,1,0.36,1) forwards; opacity: 0; }
+.anim-scale-in  { animation: scaleIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity: 0; }
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-800 { animation-delay: 800ms; }
+
+/* ============================================
+   CARD HOVER EFFECTS
+   ============================================ */
+.card-hover {
+  transition: all 0.45s cubic-bezier(0.34, 1.20, 0.64, 1);
+}
+.card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--glass-shadow-lg);
+}
+
+/* ============================================
+   SHIMMER EFFECT
+   ============================================ */
+@keyframes shimmerSlide {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(300%); }
+}
+.shimmer-line {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-line::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 33%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: shimmerSlide 2.4s cubic-bezier(0.4,0,0.2,1) infinite;
+}
+
+/* ============================================
+   GIFT BOX ANIMATIONS
+   ============================================ */
+@keyframes slideInScale {
+  from { opacity: 0; transform: scale(0.82) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-slide-in-scale { animation: slideInScale 0.38s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes dropBounce {
+  0%   { opacity: 0; transform: scale(0.3) translateY(-50px); }
+  60%  { opacity: 1; transform: scale(1.08) translateY(0); }
+  100% { transform: scale(1) translateY(0); }
+}
+.animate-drop-bounce { animation: dropBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes confettiFall {
+  to { transform: translateY(110vh) rotate(540deg); opacity: 0; }
+}
+
+/* ============================================
+   GRAIN TEXTURE OVERLAY
+   ============================================ */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* ============================================
+   IMAGE ZOOM ON HOVER
+   ============================================ */
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom img {
+  transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.img-zoom:hover img {
+  transform: scale(1.08);
+}
+
+/* ============================================
+   TEXT GRADIENT
+   ============================================ */
+.text-gradient-sage {
+  background: linear-gradient(135deg, var(--sage-700) 0%, var(--sage-500) 50%, #6fa470 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-wood {
+  background: linear-gradient(135deg, #9a6420 0%, #d4922b 50%, #f6c87a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+.divider-sage {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--sage-200), transparent);
+}
