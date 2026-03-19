@@ -8,6 +8,8 @@ import { useCart } from "@/context/CartContext";
 import AnnouncementBar from "@/components/home/AnnouncementBar";
 import NavBar from "@/components/home/NavBar";
 import Footer from "@/components/home/Footer";
+import LensImage from "@/components/ui/LensImage";
+import { PRODUCT_IMAGES } from "@/lib/imageConfig";
 
 const SORT_OPTIONS = [
   { value: "featured",   label: "Nổi bật" },
@@ -17,18 +19,22 @@ const SORT_OPTIONS = [
 ];
 
 export default function ProductsView() {
-  const searchParams = useSearchParams();
-  const initialCat = searchParams.get("cat") ?? "all";
+  const searchParams  = useSearchParams();
+  const initialCat    = searchParams.get("cat") ?? "all";
 
-  const [activeCategory, setActiveCategory] = useState(initialCat);
-  const [sortBy, setSortBy]                 = useState("featured");
-  const [search, setSearch]                 = useState("");
+  const [activeCategory,    setActiveCategory]    = useState(initialCat);
+  const [sortBy,            setSortBy]            = useState("featured");
+  const [search,            setSearch]            = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const { addItem } = useCart();
 
   let filtered = PRODUCTS
     .filter(p => activeCategory === "all" || p.categoryId === activeCategory)
-    .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.desc.toLowerCase().includes(search.toLowerCase()));
+    .filter(p =>
+      !search ||
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.desc.toLowerCase().includes(search.toLowerCase())
+    );
 
   filtered = [...filtered].sort((a, b) => {
     if (sortBy === "price-asc")  return a.priceNum - b.priceNum;
@@ -37,44 +43,70 @@ export default function ProductsView() {
     return 0;
   });
 
+  /* ── Sidebar filters (shared desktop + mobile) ── */
   const SidebarFilters = () => (
-    <div className="space-y-7">
+    <div className="space-y-6">
+
       {/* Search */}
       <div>
-        <p className="text-xs font-bold text-green-700 uppercase tracking-wider mb-2.5">Tìm Kiếm</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-3"
+          style={{ color: "#9a6420" }}>
+          Tìm Kiếm
+        </p>
         <div className="relative">
           <input
             type="text"
             placeholder="Tên sản phẩm..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-green-200 rounded-xl text-sm text-green-900 placeholder:text-green-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 bg-white transition-all"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+            style={{
+              background: "rgba(255,255,255,0.80)",
+              border: "1px solid rgba(201,222,202,0.40)",
+              color: "#1a2e1b",
+            }}
           />
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+            style={{ color: "#9dc49e" }}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
           </svg>
         </div>
       </div>
 
       {/* Category */}
       <div>
-        <p className="text-xs font-bold text-green-700 uppercase tracking-wider mb-2.5">Danh Mục</p>
-        <div className="space-y-1">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-3"
+          style={{ color: "#9a6420" }}>
+          Danh Mục
+        </p>
+        <div className="space-y-0.5">
           {CATEGORY_TABS.map(tab => {
-            const tabCount = tab.id === "all" ? PRODUCTS.length : PRODUCTS.filter(p => p.categoryId === tab.id).length;
+            const cnt = tab.id === "all"
+              ? PRODUCTS.length
+              : PRODUCTS.filter(p => p.categoryId === tab.id).length;
+            const active = activeCategory === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveCategory(tab.id)}
-                className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  activeCategory === tab.id
-                    ? "bg-green-800 text-white shadow-sm"
-                    : "text-green-700 hover:bg-green-50"
-                }`}
+                className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                style={active ? {
+                  background: "linear-gradient(135deg, #2f5632, #4d8550)",
+                  color: "#faf8f4",
+                  boxShadow: "0 4px 12px rgba(47,86,50,0.20)",
+                } : {
+                  color: "#3a6b3d",
+                }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(47,86,50,0.07)"; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
               >
                 <span>{tab.icon}</span>
                 <span className="flex-1 text-left">{tab.label}</span>
-                <span className={`text-xs ${activeCategory === tab.id ? "text-green-300" : "text-green-400"}`}>{tabCount}</span>
+                <span className="text-xs" style={{ color: active ? "rgba(201,222,202,0.65)" : "#9dc49e" }}>
+                  {cnt}
+                </span>
               </button>
             );
           })}
@@ -83,22 +115,36 @@ export default function ProductsView() {
 
       {/* Sort */}
       <div>
-        <p className="text-xs font-bold text-green-700 uppercase tracking-wider mb-2.5">Sắp Xếp</p>
-        <div className="space-y-1">
-          {SORT_OPTIONS.map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => setSortBy(opt.value)}
-              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                sortBy === opt.value
-                  ? "bg-amber-50 text-amber-800 border border-amber-200"
-                  : "text-green-700 hover:bg-green-50"
-              }`}
-            >
-              {sortBy === opt.value && <span className="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0"/>}
-              {opt.label}
-            </button>
-          ))}
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-3"
+          style={{ color: "#9a6420" }}>
+          Sắp Xếp
+        </p>
+        <div className="space-y-0.5">
+          {SORT_OPTIONS.map(opt => {
+            const active = sortBy === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setSortBy(opt.value)}
+                className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                style={active ? {
+                  background: "rgba(246,200,122,0.15)",
+                  color: "#9a6420",
+                  border: "1px solid rgba(246,200,122,0.25)",
+                } : {
+                  color: "#3a6b3d",
+                }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(47,86,50,0.07)"; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
+              >
+                {active && (
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ background: "#d4922b" }} />
+                )}
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -106,10 +152,16 @@ export default function ProductsView() {
       {(activeCategory !== "all" || search || sortBy !== "featured") && (
         <button
           onClick={() => { setActiveCategory("all"); setSearch(""); setSortBy("featured"); }}
-          className="w-full flex items-center justify-center gap-1.5 text-xs text-green-600 hover:text-green-900 py-2 border border-dashed border-green-200 rounded-xl hover:border-green-400 transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 text-xs py-2.5 rounded-xl transition-all duration-200"
+          style={{
+            border: "1px dashed rgba(201,222,202,0.50)",
+            color: "#6fa470",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "#9dc49e"; e.currentTarget.style.color = "#2f5632"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(201,222,202,0.50)"; e.currentTarget.style.color = "#6fa470"; }}
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
           Xóa bộ lọc
         </button>
@@ -118,115 +170,282 @@ export default function ProductsView() {
   );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ background: "var(--ivory)" }}>
       <AnnouncementBar />
       <NavBar />
 
-      {/* Page Header */}
-      <div className="bg-green-50 border-b border-green-100">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 py-10">
-          <nav className="flex items-center gap-2 text-sm text-green-500 mb-3">
-            <Link href="/" className="hover:text-green-800 transition-colors">Trang chủ</Link>
-            <span className="text-green-300">/</span>
-            <span className="text-green-800 font-medium">Sản Phẩm</span>
+      {/* ── Page Header ── */}
+      <div
+        className="relative overflow-hidden"
+        style={{ background: "#f0f4f0", borderBottom: "1px solid rgba(201,222,202,0.25)" }}
+      >
+        {/* Subtle tint */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at top right, rgba(201,222,202,0.40) 0%, transparent 60%)" }} />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 py-10">
+          <nav className="flex items-center gap-2 text-sm mb-4">
+            <Link
+              href="/"
+              className="transition-colors duration-200"
+              style={{ color: "#9dc49e" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "#2f5632")}
+              onMouseLeave={e => (e.currentTarget.style.color = "#9dc49e")}
+            >
+              Trang chủ
+            </Link>
+            <span style={{ color: "rgba(201,222,202,0.60)" }}>/</span>
+            <span className="font-semibold" style={{ color: "#2f5632" }}>Sản Phẩm</span>
           </nav>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-green-900">Tất Cả Sản Phẩm</h1>
-          <p className="text-green-600 mt-2 text-sm sm:text-base">Đặc sản Sơn La — thuần khiết từ núi rừng Tây Bắc, giao tận tay bạn</p>
+          <h1
+            className="font-extrabold leading-tight mb-2"
+            style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", color: "#1a2e1b" }}
+          >
+            Tất Cả Sản Phẩm
+          </h1>
+          <p className="text-sm" style={{ color: "#6fa470" }}>
+            Đặc sản Sơn La — thuần khiết từ núi rừng Tây Bắc, giao tận tay bạn
+          </p>
         </div>
       </div>
 
+      {/* ── Main Layout ── */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-10">
         <div className="flex gap-8 lg:gap-10">
 
           {/* Desktop Sidebar */}
-          <aside className="hidden lg:block w-56 shrink-0">
-            <div className="sticky top-24">
+          <aside className="hidden lg:block w-52 shrink-0">
+            <div
+              className="sticky top-24 rounded-2xl p-5"
+              style={{
+                background: "rgba(255,255,255,0.80)",
+                border: "1px solid rgba(201,222,202,0.30)",
+                boxShadow: "0 4px 20px rgba(47,86,50,0.06)",
+                backdropFilter: "blur(12px)",
+              }}
+            >
               <SidebarFilters />
             </div>
           </aside>
 
-          {/* Main */}
+          {/* Product area */}
           <div className="flex-1 min-w-0">
-            {/* Top bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-7 pb-5 border-b border-green-100">
-              <p className="text-green-700 text-sm">
-                <span className="font-bold text-green-900 text-lg">{filtered.length}</span>
+
+            {/* Topbar */}
+            <div
+              className="flex flex-wrap items-center justify-between gap-3 mb-8 pb-5"
+              style={{ borderBottom: "1px solid rgba(201,222,202,0.25)" }}
+            >
+              <p className="text-sm" style={{ color: "#4d8550" }}>
+                <span className="font-extrabold text-xl" style={{ color: "#1a2e1b" }}>
+                  {filtered.length}
+                </span>
                 <span className="ml-1.5">sản phẩm</span>
                 {activeCategory !== "all" && (
-                  <span className="ml-1">trong <span className="font-semibold text-green-800">{CATEGORY_TABS.find(t => t.id === activeCategory)?.label}</span></span>
+                  <span className="ml-1">
+                    trong{" "}
+                    <span className="font-semibold" style={{ color: "#2f5632" }}>
+                      {CATEGORY_TABS.find(t => t.id === activeCategory)?.label}
+                    </span>
+                  </span>
                 )}
               </p>
+
+              {/* Mobile filter btn */}
               <button
                 onClick={() => setShowMobileFilters(true)}
-                className="lg:hidden flex items-center gap-2 text-sm font-semibold text-green-800 border border-green-200 rounded-full px-4 py-2 hover:bg-green-50 transition-colors"
+                className="lg:hidden flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl transition-all btn-liquid"
+                style={{
+                  border: "1px solid rgba(201,222,202,0.35)",
+                  color: "#2f5632",
+                  background: "rgba(255,255,255,0.80)",
+                }}
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M7 8h10M11 12h4"/></svg>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M7 8h10M11 12h4" />
+                </svg>
                 Lọc & Sắp xếp
               </button>
             </div>
 
-            {/* Product Grid */}
+            {/* Empty */}
             {filtered.length === 0 ? (
               <div className="text-center py-24">
-                <span className="text-5xl block mb-4">🔍</span>
-                <p className="font-bold text-green-900 text-lg mb-2">Không tìm thấy sản phẩm</p>
-                <p className="text-green-500 text-sm mb-6">Thử thay đổi từ khóa hoặc bộ lọc</p>
-                <button onClick={() => { setSearch(""); setActiveCategory("all"); }} className="bg-green-800 text-white px-7 py-3 rounded-full text-sm font-semibold hover:bg-green-700 transition-colors">
+                <div
+                  className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mb-5 mx-auto"
+                  style={{ background: "rgba(157,196,158,0.12)" }}
+                >
+                  🔍
+                </div>
+                <p className="font-bold text-xl mb-2" style={{ color: "#1a2e1b" }}>
+                  Không tìm thấy sản phẩm
+                </p>
+                <p className="text-sm mb-6" style={{ color: "#6fa470" }}>
+                  Thử thay đổi từ khóa hoặc bộ lọc
+                </p>
+                <button
+                  onClick={() => { setSearch(""); setActiveCategory("all"); }}
+                  className="px-7 py-3 rounded-full text-sm font-bold text-white btn-liquid"
+                  style={{
+                    background: "linear-gradient(135deg, #2f5632, #4d8550)",
+                    boxShadow: "0 4px 16px rgba(47,86,50,0.25)",
+                  }}
+                >
                   Xóa bộ lọc
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-                {filtered.map(p => (
-                  <div key={p.id} className="group bg-white border border-green-100 rounded-2xl overflow-hidden hover:border-green-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
-                    {/* Image */}
-                    <div className={`h-52 bg-linear-to-br ${p.grad} relative flex items-center justify-center`}>
-                      {p.badge && (
-                        <span className="absolute top-3 left-3 bg-white/25 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">{p.badge}</span>
-                      )}
-                      <span className="text-5xl group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">{p.emoji}</span>
-                      <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300 rounded-t-2xl"/>
-                    </div>
-                    {/* Content */}
-                    <div className="p-5 flex flex-col flex-1">
-                      <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">{p.category}</span>
-                      <h3 className="font-bold text-green-900 text-base mt-1 mb-1.5 leading-snug">{p.name}</h3>
-                      <p className="text-green-600 text-sm leading-relaxed line-clamp-2 flex-1">{p.desc}</p>
-                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-green-100">
-                        <div>
-                          <p className="font-extrabold text-amber-700 text-lg leading-none">{p.price}</p>
-                          <p className="text-green-400 text-xs mt-1">{p.weight}</p>
-                        </div>
-                        <button
-                          onClick={() => addItem({ id: p.id, name: p.name, priceNum: p.priceNum, priceLabel: p.price, weight: p.weight, emoji: p.emoji, grad: p.grad })}
-                          className="flex items-center gap-1.5 bg-green-800 hover:bg-green-700 text-white text-xs font-bold px-4 py-2.5 rounded-full transition-all hover:shadow-md hover:-translate-y-0.5"
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filtered.map(p => {
+                  const imgs = PRODUCT_IMAGES[p.id];
+                  return (
+                    <div
+                      key={p.id}
+                      className="group rounded-2xl overflow-hidden flex flex-col card-hover"
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid rgba(201,222,202,0.30)",
+                        boxShadow: "0 2px 12px rgba(47,86,50,0.06)",
+                      }}
+                    >
+                      {/* LensImage */}
+                      <div className="h-52 shrink-0">
+                        <LensImage
+                          mainImage={imgs?.main}
+                          revealImage={imgs?.reveal}
+                          baseGrad={p.grad}
+                          revealGrad={p.revealGrad}
+                          emoji={p.emoji}
+                          revealEmoji={p.revealEmoji}
+                          lensSize={160}
+                          alt={p.name}
+                          className="w-full h-full"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
-                          Giỏ hàng
-                        </button>
+                          {p.badge && (
+                            <div className="relative z-10 p-3">
+                              <span
+                                className="px-2.5 py-1 rounded-full text-[10px] font-bold"
+                                style={{
+                                  background: "rgba(250,248,244,0.92)",
+                                  color: "#9a6420",
+                                  backdropFilter: "blur(8px)",
+                                }}
+                              >
+                                {p.badge}
+                              </span>
+                            </div>
+                          )}
+                        </LensImage>
+                      </div>
+
+                      {/* Info */}
+                      <div className="p-5 flex flex-col flex-1">
+                        <span
+                          className="text-[10px] font-bold uppercase tracking-wider mb-1"
+                          style={{ color: "#9a6420" }}
+                        >
+                          {p.category}
+                        </span>
+                        <h3
+                          className="font-bold text-base mb-1.5 leading-snug"
+                          style={{ color: "#1a2e1b" }}
+                        >
+                          {p.name}
+                        </h3>
+                        <p
+                          className="text-sm leading-relaxed line-clamp-2 flex-1"
+                          style={{ color: "#6fa470" }}
+                        >
+                          {p.desc}
+                        </p>
+                        <div
+                          className="flex items-center justify-between mt-4 pt-4"
+                          style={{ borderTop: "1px solid rgba(201,222,202,0.25)" }}
+                        >
+                          <div>
+                            <p className="font-extrabold text-lg leading-none"
+                              style={{ color: "#d4922b" }}>
+                              {p.price}
+                            </p>
+                            <p className="text-xs mt-1" style={{ color: "#9dc49e" }}>
+                              {p.weight}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() =>
+                              addItem({
+                                id: p.id, name: p.name, priceNum: p.priceNum,
+                                priceLabel: p.price, weight: p.weight,
+                                emoji: p.emoji, grad: p.grad,
+                              })
+                            }
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-white btn-liquid"
+                            style={{
+                              background: "linear-gradient(135deg, #2f5632, #4d8550)",
+                              boxShadow: "0 4px 12px rgba(47,86,50,0.22)",
+                            }}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                              stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Giỏ hàng
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Mobile Filter Drawer */}
+      {/* ── Mobile filter bottom sheet ── */}
       {showMobileFilters && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setShowMobileFilters(false)}/>
-          <div className="fixed bottom-0 left-0 right-0 bg-white z-50 rounded-t-3xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-green-900 text-lg">Lọc & Sắp xếp</h3>
-              <button onClick={() => setShowMobileFilters(false)} className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-700">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          <div
+            className="fixed inset-0 z-40 transition-all duration-300"
+            style={{ background: "rgba(14,26,15,0.45)", backdropFilter: "blur(4px)" }}
+            onClick={() => setShowMobileFilters(false)}
+          />
+          <div
+            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl p-6
+                       max-h-[82vh] overflow-y-auto"
+            style={{
+              background: "rgba(250,248,244,0.97)",
+              backdropFilter: "blur(24px) saturate(180%)",
+              boxShadow: "0 -16px 60px rgba(47,86,50,0.18)",
+              borderTop: "1px solid rgba(201,222,202,0.25)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-bold text-lg" style={{ color: "#1a2e1b" }}>
+                Lọc & Sắp xếp
+              </h3>
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
+                style={{ background: "rgba(47,86,50,0.08)", color: "#4d8550" }}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
+
             <SidebarFilters />
-            <button onClick={() => setShowMobileFilters(false)} className="w-full mt-6 bg-green-800 text-white font-bold py-3.5 rounded-full text-sm hover:bg-green-700 transition-colors">
+
+            <button
+              onClick={() => setShowMobileFilters(false)}
+              className="w-full mt-6 py-4 rounded-2xl font-bold text-sm text-white btn-liquid"
+              style={{
+                background: "linear-gradient(135deg, #2f5632, #4d8550)",
+                boxShadow: "0 4px 16px rgba(47,86,50,0.25)",
+              }}
+            >
               Xem {filtered.length} sản phẩm
             </button>
           </div>
