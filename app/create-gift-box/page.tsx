@@ -7,6 +7,8 @@ import NavBar from "@/components/home/NavBar";
 import { PRODUCTS } from "@/lib/data";
 import ProductList from "@/components/products/ProductList";
 import GiftBoxArea from "@/components/products/GiftBoxArea";
+import PromotionBanner from "@/components/products/PromotionBanner";
+import Footer from "@/components/home/Footer";
 import type { Product } from "@/lib/data";
 import type { GiftBoxItem as GiftBoxItemType } from "@/components/products/GiftBoxArea";
 
@@ -18,6 +20,12 @@ export default function CreateGiftBox() {
   const [draggedProduct, setDraggedProduct] = useState<Product | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [lastAddedId, setLastAddedId] = useState<number | null>(null);
+
+  // Discount logic: ≥5 total items
+  const totalQuantity = giftBoxItems.reduce((sum, item) => sum + item.quantity, 0);
+  const isDiscountApplied = totalQuantity >= 5;
+  const selectedProductIds = giftBoxItems.map(item => item.product.id);
 
   // Confetti effect when first item added
   useEffect(() => {
@@ -58,6 +66,7 @@ export default function CreateGiftBox() {
       const product = JSON.parse(productData) as Product;
       
       // Add item with animation
+      setLastAddedId(product.id);
       setGiftBoxItems(prev => {
         const existing = prev.find(item => item.product.id === product.id);
         if (existing) {
@@ -69,6 +78,7 @@ export default function CreateGiftBox() {
         }
         return [...prev, { product, quantity: 1 }];
       });
+      setTimeout(() => setLastAddedId(null), 400);
 
       // Reset dragged product
       setDraggedProduct(null);
@@ -77,8 +87,13 @@ export default function CreateGiftBox() {
     }
   };
 
-  const getTotalPrice = () => {
+  const getOriginalTotalPrice = () => {
     return giftBoxItems.reduce((sum, item) => sum + item.product.priceNum * item.quantity, 0);
+  };
+
+  const getFinalTotalPrice = () => {
+    const original = getOriginalTotalPrice();
+    return isDiscountApplied ? original * 0.9 : original;
   };
 
   const handleAddToCart = () => {
@@ -96,7 +111,7 @@ export default function CreateGiftBox() {
         productId: item.product.id,
         quantity: item.quantity,
       })),
-      totalPrice: getTotalPrice(),
+      totalPrice: getFinalTotalPrice(), // Send the final discounted price to Cart
       createdAt: new Date(),
       icon: "🎁",  // Set icon for display
     });
@@ -172,7 +187,38 @@ export default function CreateGiftBox() {
             ✓ Gói quà đã được thêm vào giỏ hàng!
           </div>
         )}
-
+{/* Tips Section */}
+        <div className="bg-green-50 border-t border-green-200 py-8 mb-8">
+          <div className="max-w-7xl mx-auto px-5 sm:px-8">
+            <h3 className="text-lg font-bold text-green-900 mb-4">💡 Mẹo Tạo Gói Quà</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-white rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold text-gray-900 mb-2">🎯 Kéo Sản Phẩm</h4>
+                <p className="text-sm text-gray-600">
+                  Kéo bất kỳ sản phẩm nào từ danh sách bên trái vào khu vực gói quà
+                </p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold text-gray-900 mb-2">📦 Điều Chỉnh Số Lượng</h4>
+                <p className="text-sm text-gray-600">
+                  Sử dụng nút + / - để điều chỉnh số lượng sản phẩm trong gói
+                </p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold text-gray-900 mb-2">✨ Hoàn Thành</h4>
+                <p className="text-sm text-gray-600">
+                  Nhấn nút "Thêm Gói Quà Vào Giỏ Hàng" để hoàn tất tạo gói quà
+                </p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold text-gray-900 mb-2">🎁 Gói Quà Đẹp</h4>
+                <p className="text-sm text-gray-600">
+                  Tạo bộ sưu tập quà tặng hoàn hảo cho người thân
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
         {/* Main Layout */}
         <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
@@ -181,18 +227,31 @@ export default function CreateGiftBox() {
               <ProductList
                 products={PRODUCTS}
                 onProductDragStart={handleProductDragStart}
+                selectedProductIds={selectedProductIds}
               />
             </div>
 
-            {/* Right Side - Gift Box Area (1 column) */}
-            <div className="rounded-lg border border-gray-200 shadow-sm overflow-hidden bg-white">
-              <GiftBoxArea
-                items={giftBoxItems}
-                onItemsChange={setGiftBoxItems}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                isDragOver={isDragOverBox}
-              />
+            {/* Right Side - Promotion + Gift Box Area (1 column) */}
+            <div className="flex flex-col gap-4 min-h-0">
+              {/* Promotion Banner */}
+              <div className="shrink-0">
+                <PromotionBanner
+                  itemCount={totalQuantity}
+                  isDiscountActive={isDiscountApplied}
+                />
+              </div>
+              {/* Gift Box */}
+              <div className="rounded-lg border border-gray-200 shadow-sm overflow-hidden bg-white flex-1 min-h-0">
+                <GiftBoxArea
+                  items={giftBoxItems}
+                  onItemsChange={setGiftBoxItems}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  isDragOver={isDragOverBox}
+                  isDiscountActive={isDiscountApplied}
+                  lastAddedId={lastAddedId}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -220,41 +279,46 @@ export default function CreateGiftBox() {
             </button>
           </div>
           {giftBoxItems.length > 0 && (
-            <p className="text-center mt-4 text-sm text-gray-600">
-              Tổng giá: <span className="font-bold text-green-800 text-base">
-                {(getTotalPrice() / 1000).toFixed(0)}k đ
-              </span>
-            </p>
+            <div className="text-center mt-4 space-y-1">
+              <p className="text-sm text-gray-600">
+                Tổng giá:{" "}
+                {isDiscountApplied ? (
+                  <>
+                    <span className="line-through text-gray-400 text-sm mr-2">
+                      {(getOriginalTotalPrice() / 1000).toFixed(0)}k đ
+                    </span>
+                    <span className="font-bold text-green-600 text-lg">
+                      {(getFinalTotalPrice() / 1000).toFixed(0)}k đ
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-bold text-green-800 text-base">
+                    {(getFinalTotalPrice() / 1000).toFixed(0)}k đ
+                  </span>
+                )}
+              </p>
+              {isDiscountApplied && (
+                <p className="text-xs text-green-600 font-semibold">
+                  ✅ Đã áp dụng giảm giá 10%
+                </p>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Tips Section */}
-        <div className="bg-green-50 border-t border-green-200 py-8">
-          <div className="max-w-7xl mx-auto px-5 sm:px-8">
-            <h3 className="text-lg font-bold text-green-900 mb-4">💡 Mẹo Tạo Gói Quà</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold text-gray-900 mb-2">🎯 Kéo Sản Phẩm</h4>
-                <p className="text-sm text-gray-600">
-                  Kéo bất kỳ sản phẩm nào từ danh sách bên trái vào khu vực gói quà
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold text-gray-900 mb-2">📦 Điều Chỉnh Số Lượng</h4>
-                <p className="text-sm text-gray-600">
-                  Sử dụng nút + / - để điều chỉnh số lượng sản phẩm trong gói
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold text-gray-900 mb-2">✨ Hoàn Thành</h4>
-                <p className="text-sm text-gray-600">
-                  Nhấn nút "Thêm Gói Quà Vào Giỏ Hàng" để hoàn tất tạo gói quà
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        
       </div>
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.7;
+          }
+        }
+      `}</style>
+      <Footer />
     </div>
   );
 }

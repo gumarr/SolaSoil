@@ -61,7 +61,7 @@ export default function CategoriesSection({ onCategoryChange }: CategoriesSectio
                 }}
               >
                 <div
-                  className="group rounded-2xl overflow-hidden cursor-pointer card-hover"
+                  className="group rounded-2xl overflow-hidden cursor-pointer card-hover flex flex-col h-full"
                   style={{
                     background: "#ffffff",
                     border: "1px solid rgba(201,222,202,0.35)",
@@ -73,7 +73,7 @@ export default function CategoriesSection({ onCategoryChange }: CategoriesSectio
                   }}
                 >
                   {/* Image / emoji fallback */}
-                  <div className="relative h-44 overflow-hidden">
+                  <div className="relative h-48 overflow-hidden flex-shrink-0">
                     {imgSrc ? (
                       <img
                         src={imgSrc}
@@ -111,11 +111,11 @@ export default function CategoriesSection({ onCategoryChange }: CategoriesSectio
                   </div>
 
                   {/* Content */}
-                  <div className="p-4">
+                  <div className="p-4 flex flex-col flex-1">
                     <p className="text-xs leading-relaxed mb-3" style={{ color: "#6fa470" }}>
                       {cat.desc}
                     </p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1.5 mb-4">
                       {cat.products.slice(0, 2).map((name) => (
                         <span
                           key={name}
@@ -131,7 +131,7 @@ export default function CategoriesSection({ onCategoryChange }: CategoriesSectio
                       ))}
                     </div>
                     <div
-                      className="flex items-center gap-1.5 mt-4 text-xs font-bold transition-all duration-300 group-hover:gap-2.5"
+                      className="flex items-center gap-1.5 mt-4 text-xs font-bold transition-all duration-300 group-hover:gap-2.5 mt-auto"
                       style={{ color: "#3a6b3d" }}
                     >
                       Xem tất cả

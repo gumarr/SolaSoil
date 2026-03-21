@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 
 interface LensImageProps {
   /** Ảnh thật hiển thị bình thường */
@@ -27,7 +27,7 @@ export default function LensImage({
   revealGrad = "from-amber-700 via-orange-600 to-amber-500",
   emoji      = "🌿",
   revealEmoji = "🏔️",
-  lensSize   = 168,
+  lensSize   = 140,
   children,
   className  = "",
   alt        = "",
@@ -36,7 +36,6 @@ export default function LensImage({
   const containerRef = useRef<HTMLDivElement>(null);
   const [pos, setPos]       = useState({ x: 0, y: 0 });
   const [active, setActive] = useState(false);
-  const [loaded, setLoaded] = useState(false);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = containerRef.current!.getBoundingClientRect();
@@ -57,25 +56,26 @@ export default function LensImage({
       {/* ── BASE LAYER ── */}
       {usePhoto ? (
         /* Real photo mode */
-        <div className="absolute inset-0">
-          <img
-            src={mainImage}
-            alt={alt}
-            className="w-full h-full object-cover"
-            onLoad={() => setLoaded(true)}
-          />
+        <div 
+          className={`absolute inset-0 w-full h-full bg-gradient-to-br ${baseGrad}`}
+        >
+          <picture>
+            <img
+              src={mainImage}
+              alt={alt}
+              className="w-full h-full object-cover"
+              loading="eager"
+              style={{ display: "block" }}
+            />
+          </picture>
           {/* Subtle vignette */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none"
             style={{
               background:
                 "linear-gradient(to top, rgba(26,46,27,0.45) 0%, transparent 55%)",
             }}
           />
-          {/* Loading shimmer */}
-          {!loaded && (
-            <div className="absolute inset-0 bg-[#1a2e1b] animate-pulse" />
-          )}
         </div>
       ) : (
         /* Gradient fallback */

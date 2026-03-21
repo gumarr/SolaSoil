@@ -51,16 +51,18 @@ export default function NavBar() {
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center
+            className="w-9 h-9 rounded-xl flex items-center justify-center overflow-hidden
                        transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
             style={{
               background: "linear-gradient(135deg, #2f5632, #4d8550)",
               boxShadow: "0 4px 12px rgba(47,86,50,0.25)",
             }}
           >
-            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
-              <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.47 19.1 7.5 17.1 9 15.5C11.07 16.8 13.92 17 17 8z" />
-            </svg>
+            <img
+              src="/Logo.jpg"
+              alt="Mộc Sơn Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <span className="font-extrabold text-lg tracking-tight leading-none block"
