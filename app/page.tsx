@@ -14,6 +14,7 @@ import GiftBoxesSection from "@/components/home/GiftBoxesSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import NewsletterSection from "@/components/home/NewsletterSection";
 import Footer from "@/components/home/Footer";
+import VoucherPopup from "@/components/home/VoucherPopup";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -24,6 +25,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
+      <VoucherPopup />
       <AnnouncementBar />
       <NavBar />
       <HeroSection />
