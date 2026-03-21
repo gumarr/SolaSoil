@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useInView } from "@/hooks/useInView";
 import { CATEGORY_TABS, type Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
@@ -19,6 +20,17 @@ export default function ProductsSection({
 }: ProductsSectionProps) {
   const [ref, inView] = useInView(0.05);
   const { addItem } = useCart();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  // Reset to page 1 when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory]);
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <section
@@ -108,7 +120,7 @@ export default function ProductsSection({
 
         {/* ── Product Grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filteredProducts.map((p, i) => {
+          {paginatedProducts.map((p, i) => {
             const imgs = PRODUCT_IMAGES[p.id];
 
             return (
@@ -138,7 +150,7 @@ export default function ProductsSection({
                       revealGrad={p.revealGrad}
                       emoji={p.emoji}
                       revealEmoji={p.revealEmoji}
-                      lensSize={160}
+                      lensSize={130}
                       alt={p.name}
                       className="w-full h-full"
                     >
@@ -236,39 +248,80 @@ export default function ProductsSection({
           })}
         </div>
 
-        {/* ── View all ── */}
-        <div
-          className="text-center mt-12"
-          style={{
-            opacity: inView ? 1 : 0,
-            transition: "all 0.7s 500ms ease",
-          }}
-        >
-          <a
-            href="/products"
-            className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full font-bold text-sm btn-liquid"
+        {/* ── Pagination ── */}
+        {totalPages > 1 && (
+          <div
+            className="flex items-center justify-center gap-2 mt-12"
             style={{
-              border: "1px solid rgba(47,86,50,0.20)",
-              color: "#2f5632",
-              background: "transparent",
+              opacity: inView ? 1 : 0,
+              transition: "all 0.7s 500ms ease",
             }}
           >
-            Xem Tất Cả Sản Phẩm
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2.5}
+            {/* Previous button */}
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center"
+              style={{
+                background: currentPage === 1 
+                  ? "rgba(201,222,202,0.20)" 
+                  : "rgba(47,86,50,0.12)",
+                border: "1px solid rgba(201,222,202,0.30)",
+                color: currentPage === 1 ? "#9dc49e" : "#2f5632",
+              }}
+              aria-label="Previous page"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
-          </a>
-        </div>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Page numbers */}
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className="min-w-[36px] h-9 rounded-lg font-semibold text-sm transition-all duration-300"
+                  style={
+                    currentPage === page
+                      ? {
+                          background: "linear-gradient(135deg, #2f5632, #4d8550)",
+                          color: "#faf8f4",
+                          boxShadow: "0 4px 12px rgba(47,86,50,0.25)",
+                        }
+                      : {
+                          background: "rgba(47,86,50,0.08)",
+                          color: "#2f5632",
+                          border: "1px solid rgba(201,222,202,0.25)",
+                        }
+                  }
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            {/* Next button */}
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center"
+              style={{
+                background: currentPage === totalPages 
+                  ? "rgba(201,222,202,0.20)" 
+                  : "rgba(47,86,50,0.12)",
+                border: "1px solid rgba(201,222,202,0.30)",
+                color: currentPage === totalPages ? "#9dc49e" : "#2f5632",
+              }}
+              aria-label="Next page"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

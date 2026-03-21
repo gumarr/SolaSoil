@@ -4,10 +4,10 @@ import { useInView } from "@/hooks/useInView";
 import { STORY_IMAGES } from "@/lib/imageConfig";
 
 const CARDS = [
-  { icon: "🤝", title: "Hợp Tác Trực Tiếp",  desc: "Làm việc trực tiếp với 50+ hộ nông dân tại Sơn La — không qua trung gian." },
-  { icon: "🏔️", title: "Nguồn Gốc Rõ Ràng",  desc: "Mỗi sản phẩm có thông tin cụ thể về bản, xã, huyện sản xuất tại Sơn La." },
-  { icon: "✅", title: "Kiểm Định Chặt Chẽ", desc: "100% qua kiểm định VSATTP. Không phụ gia, không hóa chất bảo quản." },
-  { icon: "🎁", title: "Hộp Quà Sơn La",     desc: "Bộ quà tặng đặc sản thiết kế riêng — quà Tết, quà công ty, quà biếu." },
+  { title: "Hợp Tác Trực Tiếp",  desc: "Làm việc trực tiếp với 50+ hộ nông dân tại Sơn La — không qua trung gian." },
+  { title: "Nguồn Gốc Rõ Ràng",  desc: "Mỗi sản phẩm có thông tin cụ thể về bản, xã, huyện sản xuất tại Sơn La." },
+  { title: "Kiểm Định Chặt Chẽ", desc: "100% qua kiểm định VSATTP. Không phụ gia, không hóa chất bảo quản." },
+  { title: "Hộp Quà Sơn La",     desc: "Bộ quà tặng đặc sản thiết kế riêng — quà Tết, quà công ty, quà biếu." },
 ];
 
 export default function StorySection() {
@@ -108,12 +108,6 @@ export default function StorySection() {
                   transitionDelay: `${i * 60}ms`,
                 }}
               >
-                <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl mb-4 transition-transform duration-300 group-hover:scale-110"
-                  style={{ background: "rgba(157,196,158,0.15)" }}
-                >
-                  {card.icon}
-                </div>
                 <h3 className="font-bold mb-2" style={{ color: "#1a2e1b", fontSize: "0.95rem" }}>
                   {card.title}
                 </h3>

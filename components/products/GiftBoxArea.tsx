@@ -14,6 +14,8 @@ interface GiftBoxAreaProps {
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   isDragOver: boolean;
+  isDiscountActive?: boolean;
+  lastAddedId?: number | null;
 }
 
 export default function GiftBoxArea({
@@ -22,6 +24,8 @@ export default function GiftBoxArea({
   onDragOver,
   onDrop,
   isDragOver,
+  isDiscountActive = false,
+  lastAddedId = null,
 }: GiftBoxAreaProps) {
 
   const getTotalPrice = () =>
@@ -45,7 +49,9 @@ export default function GiftBoxArea({
     <div
       onDragOver={onDragOver}
       onDrop={onDrop}
-      className="flex flex-col h-full transition-all duration-300"
+      className={`flex flex-col h-full transition-all duration-300 ${
+        isDragOver ? "ring-2 ring-green-400/50 shadow-[0_0_20px_rgba(34,197,94,0.15)]" : ""
+      }`}
       style={{
         background: isDragOver ? "rgba(201,222,202,0.20)" : "rgba(250,248,244,0.80)",
       }}
@@ -79,13 +85,15 @@ export default function GiftBoxArea({
       {/* ── Empty state ── */}
       {items.length === 0 ? (
         <div
-          className="flex-1 flex flex-col items-center justify-center p-6 text-center
-                     transition-all duration-300 m-3 rounded-2xl"
+          className={`flex-1 flex flex-col items-center justify-center p-6 text-center
+                     transition-all duration-300 m-3 rounded-2xl
+                     ${isDragOver ? "border-green-400/60 bg-green-50/40" : ""}`}
           style={{
             background: isDragOver
               ? "rgba(201,222,202,0.25)"
               : "rgba(255,255,255,0.50)",
-            border: `2px dashed ${isDragOver ? "rgba(111,164,112,0.60)" : "rgba(201,222,202,0.45)"}`,
+            border: `2px dashed ${isDragOver ? "rgba(74,222,128,0.70)" : "rgba(201,222,202,0.45)"}`,
+            boxShadow: isDragOver ? "inset 0 0 20px rgba(34,197,94,0.08)" : "none",
           }}
         >
           <div
@@ -116,11 +124,15 @@ export default function GiftBoxArea({
               return (
                 <div
                   key={item.product.id}
-                  className="rounded-xl overflow-hidden transition-all duration-200"
+                  className={`rounded-xl overflow-hidden transition-all duration-200 ${
+                    lastAddedId === item.product.id ? "animate-[snapIn_0.35s_ease-out]" : ""
+                  }`}
                   style={{
                     background: "rgba(255,255,255,0.90)",
                     border: "1px solid rgba(201,222,202,0.30)",
-                    boxShadow: "0 2px 8px rgba(47,86,50,0.05)",
+                    boxShadow: lastAddedId === item.product.id
+                      ? "0 4px 16px rgba(34,197,94,0.18)"
+                      : "0 2px 8px rgba(47,86,50,0.05)",
                   }}
                 >
                   {/* Top row */}
@@ -153,9 +165,20 @@ export default function GiftBoxArea({
                       <p className="text-[10px]" style={{ color: "#9dc49e" }}>
                         {item.product.weight}
                       </p>
-                      <p className="font-extrabold text-xs mt-0.5" style={{ color: "#d4922b" }}>
-                        {item.product.price}
-                      </p>
+                      {isDiscountActive ? (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[10px] line-through" style={{ color: "#b0b0b0" }}>
+                            {item.product.price}
+                          </span>
+                          <span className="font-extrabold text-xs" style={{ color: "#16a34a" }}>
+                            {((item.product.priceNum * 0.9) / 1000).toFixed(0)}k đ
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="font-extrabold text-xs mt-0.5" style={{ color: "#d4922b" }}>
+                          {item.product.price}
+                        </p>
+                      )}
                     </div>
 
                     {/* Delete */}
@@ -219,9 +242,20 @@ export default function GiftBoxArea({
                     {/* Line total */}
                     <span className="text-xs font-semibold" style={{ color: "#6fa470" }}>
                       Tổng:{" "}
-                      <span className="font-extrabold" style={{ color: "#d4922b" }}>
-                        {((item.product.priceNum * item.quantity) / 1000).toFixed(0)}k đ
-                      </span>
+                      {isDiscountActive ? (
+                        <>
+                          <span className="line-through text-[10px] mr-1" style={{ color: "#b0b0b0" }}>
+                            {((item.product.priceNum * item.quantity) / 1000).toFixed(0)}k
+                          </span>
+                          <span className="font-extrabold" style={{ color: "#16a34a" }}>
+                            {((item.product.priceNum * 0.9 * item.quantity) / 1000).toFixed(0)}k đ
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-extrabold" style={{ color: "#d4922b" }}>
+                          {((item.product.priceNum * item.quantity) / 1000).toFixed(0)}k đ
+                        </span>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -260,10 +294,31 @@ export default function GiftBoxArea({
               style={{ borderTop: "1px solid rgba(201,222,202,0.22)" }}
             >
               <span className="font-bold text-sm" style={{ color: "#1a2e1b" }}>Tổng giá</span>
-              <span className="font-extrabold text-lg" style={{ color: "#d4922b" }}>
-                {(getTotalPrice() / 1000).toFixed(0)}k đ
-              </span>
+              {isDiscountActive ? (
+                <div className="text-right">
+                  <span className="text-xs line-through block" style={{ color: "#b0b0b0" }}>
+                    {(getTotalPrice() / 1000).toFixed(0)}k đ
+                  </span>
+                  <span className="font-extrabold text-lg" style={{ color: "#16a34a" }}>
+                    {(getTotalPrice() * 0.9 / 1000).toFixed(0)}k đ
+                  </span>
+                </div>
+              ) : (
+                <span className="font-extrabold text-lg" style={{ color: "#d4922b" }}>
+                  {(getTotalPrice() / 1000).toFixed(0)}k đ
+                </span>
+              )}
             </div>
+
+            {/* Discount label */}
+            {isDiscountActive && (
+              <div
+                className="flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[11px] font-semibold"
+                style={{ background: "rgba(34,197,94,0.08)", color: "#16a34a" }}
+              >
+                ✅ Đã áp dụng giảm giá 10%
+              </div>
+            )}
 
             {/* Clear all */}
             <button
@@ -290,6 +345,25 @@ export default function GiftBoxArea({
           </div>
         </>
       )}
+
+      <style>{`
+        @keyframes snapIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.9) translateY(-8px);
+          }
+          60% {
+            opacity: 1;
+            transform: scale(1.03) translateY(0);
+          }
+          80% {
+            transform: scale(0.98);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }

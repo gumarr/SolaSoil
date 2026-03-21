@@ -9,9 +9,10 @@ const ITEMS_PER_PAGE = 12;
 interface ProductListProps {
   products: Product[];
   onProductDragStart: (product: Product, e: React.DragEvent<HTMLDivElement>) => void;
+  selectedProductIds?: number[];
 }
 
-export default function ProductList({ products, onProductDragStart }: ProductListProps) {
+export default function ProductList({ products, onProductDragStart, selectedProductIds = [] }: ProductListProps) {
   const [page,             setPage]            = useState(0);
   const [search,           setSearch]          = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -148,21 +149,44 @@ export default function ProductList({ products, onProductDragStart }: ProductLis
                 <div
                   key={product.id}
                   draggable
-                  onDragStart={e => onProductDragStart(product, e)}
-                  className="group rounded-xl overflow-hidden cursor-grab active:cursor-grabbing
-                             transition-all duration-250 hover:-translate-y-0.5"
+                  onDragStart={e => {
+                    onProductDragStart(product, e);
+                    const el = e.currentTarget;
+                    requestAnimationFrame(() => {
+                      el.style.transform = "scale(1.05)";
+                      el.style.boxShadow = "0 12px 32px rgba(47,86,50,0.25)";
+                      el.style.opacity = "0.85";
+                      el.style.zIndex = "50";
+                    });
+                  }}
+                  onDragEnd={e => {
+                    const el = e.currentTarget;
+                    el.style.transform = "";
+                    el.style.boxShadow = "0 2px 8px rgba(47,86,50,0.05)";
+                    el.style.opacity = "1";
+                    el.style.zIndex = "";
+                  }}
+                  className={`group rounded-xl overflow-hidden cursor-grab active:cursor-grabbing
+                             transition-all duration-250 hover:-translate-y-0.5 relative
+                             ${selectedProductIds.includes(product.id) ? "ring-2 ring-green-400/60" : ""}`}
                   style={{
                     background: "#ffffff",
-                    border: "1px solid rgba(201,222,202,0.30)",
+                    border: selectedProductIds.includes(product.id)
+                      ? "1px solid rgba(74,222,128,0.50)"
+                      : "1px solid rgba(201,222,202,0.30)",
                     boxShadow: "0 2px 8px rgba(47,86,50,0.05)",
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.boxShadow = "0 8px 24px rgba(47,86,50,0.14)";
-                    e.currentTarget.style.borderColor = "rgba(157,196,158,0.50)";
+                    if (!selectedProductIds.includes(product.id)) {
+                      e.currentTarget.style.borderColor = "rgba(157,196,158,0.50)";
+                    }
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.boxShadow = "0 2px 8px rgba(47,86,50,0.05)";
-                    e.currentTarget.style.borderColor = "rgba(201,222,202,0.30)";
+                    if (!selectedProductIds.includes(product.id)) {
+                      e.currentTarget.style.borderColor = "rgba(201,222,202,0.30)";
+                    }
                   }}
                 >
                   {/* Thumbnail — dùng thumb (square 120×120) để không bị giãn */}
@@ -214,6 +238,20 @@ export default function ProductList({ products, onProductDragStart }: ProductLis
                         }}
                       >
                         {product.badge}
+                      </div>
+                    )}
+
+                    {/* Selected badge */}
+                    {selectedProductIds.includes(product.id) && (
+                      <div
+                        className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold"
+                        style={{
+                          background: "rgba(34,197,94,0.90)",
+                          color: "#ffffff",
+                          backdropFilter: "blur(6px)",
+                        }}
+                      >
+                        ✓ Đã chọn
                       </div>
                     )}
                   </div>

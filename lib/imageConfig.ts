@@ -26,19 +26,19 @@ export const PRODUCT_IMAGES: Record<
   2: {
     main:   "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=600&h=450&fit=crop&q=85",
     reveal: "https://images.unsplash.com/photo-1433891248364-3ce993ff0e92?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    thumb:  "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=160&h=160&fit=crop&q=80",
+    thumb:  "https://bizweb.dktcdn.net/100/201/525/articles/tra-shan-tuyet.jpg?v=1736063499550",
   },
   // 3 — Mật Ong Rừng
   3: {
     main:   "https://images.unsplash.com/photo-1587049352851-8d4e89133924?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    reveal: "https://images.unsplash.com/photo-1471943311424-646960669fbc?w=600&h=450&fit=crop&q=85",
+    reveal: "https://us.nuxe.com/cdn/shop/articles/mag-1200x672-what-are-the-virtues-of-honey-and-other-treasures-of-the-hive-1.jpg?v=1751244173&width=2048",
     thumb:  "https://images.unsplash.com/photo-1587049352851-8d4e89133924?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   // 4 — Mắc Khén
   4: {
     main:   "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&h=450&fit=crop&q=85",
     reveal: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&h=450&fit=crop&q=85",
-    thumb:  "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=160&h=160&fit=crop&q=80",
+    thumb:  "https://huyenhashop.com/wp-content/uploads/2021/12/hat-mac-khen-nguyen-chat.jpg",
   },
   // 5 — Hạt Dổi
   5: {
@@ -55,14 +55,20 @@ export const PRODUCT_IMAGES: Record<
   // 7 — Na Sầu Riêng
   7: {
     main:   "https://images.unsplash.com/photo-1680008702737-aad40d0f1e56?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    reveal: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=600&h=450&fit=crop&q=85",
+    reveal: "https://vcdn1-kinhdoanh.vnecdn.net/2024/10/27/na12-1729993858-1729993895-3401-1729994265.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=zq9dEWP4KrpYlgcnN_ZaxQ",
     thumb:  "https://images.unsplash.com/photo-1680008702737-aad40d0f1e56?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   // 8 — Dâu Tây Mộc Châu
   8: {
     main:   "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=600&h=450&fit=crop&q=85",
     reveal: "https://images.unsplash.com/photo-1543528176-61b239494933?w=600&h=450&fit=crop&q=85",
-    thumb:  "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=160&h=160&fit=crop&q=80",
+    thumb:  "https://storage.googleapis.com/onelife-public/blog.onelife.vn/2024/01/e1da1556-dau-tay-moc-chau-1024x576.png",
+  },
+  // 9 — Hoa Quả Sấy
+  9: {
+    main:   "https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2023/1/5/hoa-qua-kho-1672887194389642956447.jpg",
+    reveal: "https://maysay.vn/wp-content/uploads/2022/07/hoa-qua%CC%89-sa%CC%82%CC%81y-kho%CC%82.jpeg",
+    thumb:  "https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2023/1/5/hoa-qua-kho-1672887194389642956447.jpg",
   },
 };
 
@@ -70,7 +76,7 @@ export const PRODUCT_IMAGES: Record<
 // GIFT BOXES — id → ảnh hộp quà
 // ----------------------------------------------------------
 export const GIFT_BOX_IMAGES: Record<number, string> = {
-  101: "https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb?w=600&h=420&fit=crop&q=85",
+  101: "https://dohafood.vn/wp-content/uploads/2024/11/Tet-website-anh-01.jpg",
   102: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=600&h=420&fit=crop&q=85",
   103: "https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=600&h=420&fit=crop&q=85",
 };
