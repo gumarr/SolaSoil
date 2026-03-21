@@ -60,10 +60,11 @@ export function getPrice(item: CartElement): number {
 
 /**
  * Get display price string for cart element
+ * e.g. 455000 → "455.000đ"
  */
 export function getPriceDisplay(item: CartElement): string {
   const price = getPrice(item);
-  return `${(price / 1000).toFixed(0)}k đ`;
+  return `${price.toLocaleString("vi-VN")}đ`;
 }
 
 /**
