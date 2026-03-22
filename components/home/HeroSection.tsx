@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { HERO_IMAGES } from "@/lib/imageConfig";
+import { ArrowRight } from "@phosphor-icons/react";
 
 const STATS = [
   { value: "50+",  label: "Nông dân" },
@@ -188,9 +189,7 @@ export default function HeroSection() {
                 }}
               >
                 Khám Phá Ngay
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                <ArrowRight weight="bold" className="w-4 h-4" />
               </Link>
               <Link
                 href="/create-gift-box"

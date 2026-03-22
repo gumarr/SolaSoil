@@ -2,6 +2,7 @@
 
 import { useInView } from "@/hooks/useInView";
 import { TESTIMONIALS } from "@/lib/data";
+import { Star } from "@phosphor-icons/react";
 
 export default function TestimonialsSection() {
   const [ref, inView] = useInView(0.05);
@@ -53,9 +54,7 @@ export default function TestimonialsSection() {
                 {/* Stars */}
                 <div className="flex gap-0.5 mb-4">
                   {[...Array(5)].map((_, s) => (
-                    <svg key={s} className="w-4 h-4" viewBox="0 0 24 24" fill="#d4922b">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
+                    <Star key={s} weight="fill" className="w-4 h-4 text-[#d4922b]" />
                   ))}
                 </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Gift, Mail, Phone, User, CheckCircle2 } from 'lucide-react';
+import { X, Gift, Envelope, Phone, User, CheckCircle } from '@phosphor-icons/react';
 
 interface FormData {
   fullName: string;
@@ -185,7 +185,7 @@ export default function VoucherPopup() {
               {submitted ? (
                 <div className="flex flex-col items-center text-center gap-5 py-8 animate-[voucherFadeUp_0.4s_ease_both]">
                   <div className="flex items-center justify-center w-20 h-20 rounded-full bg-green-100 shadow-inner">
-                    <CheckCircle2 className="text-green-500" size={44} strokeWidth={1.8} />
+                    <CheckCircle className="text-green-500" size={44} weight="bold" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-extrabold text-gray-900 mb-1">Cảm ơn bạn! 🎉</h3>
@@ -235,7 +235,7 @@ export default function VoucherPopup() {
                         Email <span className="font-normal normal-case text-gray-400">(tùy chọn)</span>
                       </label>
                       <div className="relative">
-                        <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
+                        <Envelope size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
                         <input
                           id="email"
                           name="email"

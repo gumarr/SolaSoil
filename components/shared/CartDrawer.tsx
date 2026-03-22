@@ -10,6 +10,7 @@ import {
   getQuantity,
 } from "@/lib/cartUtils";
 import { PRODUCT_IMAGES } from "@/lib/imageConfig";
+import { ShoppingBag, X, Trash } from "@phosphor-icons/react";
 
 export default function CartDrawer() {
   const { items, isOpen, count, total, removeItem, updateQty, closeCart } = useCart();
@@ -56,9 +57,7 @@ export default function CartDrawer() {
                 boxShadow: "0 4px 12px rgba(47,86,50,0.25)",
               }}
             >
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4L7 13zm0 0-1.4 7h12.8M9 21a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-              </svg>
+              <ShoppingBag weight="bold" className="w-5 h-5 text-white" />
             </div>
             <div>
               <h2 className="font-bold text-base leading-none" style={{ color: "#1a2e1b" }}>
@@ -74,9 +73,7 @@ export default function CartDrawer() {
             onMouseEnter={e => (e.currentTarget.style.background = "rgba(47,86,50,0.08)")}
             onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X weight="bold" className="w-4 h-4" />
           </button>
         </div>
 
@@ -165,9 +162,7 @@ export default function CartDrawer() {
                       onMouseEnter={e => (e.currentTarget.style.color = "#ef4444")}
                       onMouseLeave={e => (e.currentTarget.style.color = "rgba(201,222,202,0.50)")}
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
+                      <Trash weight="bold" className="w-4 h-4" />
                     </button>
 
                     {!isBox && "qty" in item ? (

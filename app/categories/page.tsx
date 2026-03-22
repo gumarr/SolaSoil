@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/data";
+import { ArrowRight } from "@phosphor-icons/react";
 import AnnouncementBar from "@/components/home/AnnouncementBar";
 import NavBar from "@/components/home/NavBar";
 import Footer from "@/components/home/Footer";
@@ -46,9 +47,7 @@ export default function CategoriesPage() {
                       {cat.count}
                     </span>
                     <div className="w-10 h-10 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center text-white group-hover:bg-white/30 group-hover:translate-x-1 transition-all duration-300">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                      </svg>
+                      <ArrowRight weight="bold" className="w-5 h-5" />
                     </div>
                   </div>
                 </div>
@@ -65,9 +64,7 @@ export default function CategoriesPage() {
                   </div>
                   <div className="flex items-center gap-2 text-green-800 font-bold text-sm group-hover:text-amber-700 transition-colors">
                     <span>Xem tất cả {cat.label.toLowerCase()}</span>
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
+                    <ArrowRight weight="bold" className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                   </div>
                 </div>
               </div>
@@ -85,9 +82,7 @@ export default function CategoriesPage() {
             className="inline-flex items-center gap-2 bg-green-800 hover:bg-green-700 text-white font-bold px-8 py-3.5 rounded-full transition-all hover:shadow-lg hover:shadow-green-900/30 hover:-translate-y-0.5 text-sm"
           >
             Xem Tất Cả Sản Phẩm
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-            </svg>
+            <ArrowRight weight="bold" className="w-4 h-4" />
           </Link>
         </div>
       </section>

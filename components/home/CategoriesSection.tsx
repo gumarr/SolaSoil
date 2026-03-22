@@ -3,6 +3,7 @@
 import { useInView } from "@/hooks/useInView";
 import { CATEGORIES } from "@/lib/data";
 import { CATEGORY_IMAGES } from "@/lib/imageConfig";
+import { ArrowRight } from "@phosphor-icons/react";
 
 interface CategoriesSectionProps {
   onCategoryChange: (id: string) => void;
@@ -135,12 +136,7 @@ export default function CategoriesSection({ onCategoryChange }: CategoriesSectio
                       style={{ color: "#3a6b3d" }}
                     >
                       Xem tất cả
-                      <svg
-                        className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
+                      <ArrowRight weight="bold" className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </div>
                   </div>
                 </div>

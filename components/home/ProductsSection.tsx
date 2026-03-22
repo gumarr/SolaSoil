@@ -6,6 +6,7 @@ import { CATEGORY_TABS, type Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import LensImage from "@/components/ui/LensImage";
 import { PRODUCT_IMAGES } from "@/lib/imageConfig";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 interface ProductsSectionProps {
   activeCategory: string;
@@ -271,9 +272,7 @@ export default function ProductsSection({
               }}
               aria-label="Previous page"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
+              <CaretLeft weight="bold" className="w-4 h-4" />
             </button>
 
             {/* Page numbers */}
@@ -316,9 +315,7 @@ export default function ProductsSection({
               }}
               aria-label="Next page"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
+              <CaretRight weight="bold" className="w-4 h-4" />
             </button>
           </div>
         )}
