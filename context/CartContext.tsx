@@ -14,6 +14,7 @@ export interface GiftBox {
   totalPrice: number;
   createdAt: Date;
   icon?: string;  // Visual icon for display
+  style?: string; // Gift box style (e.g. "Sang trọng", "Mộc mạc")
 }
 
 export interface CartItem {

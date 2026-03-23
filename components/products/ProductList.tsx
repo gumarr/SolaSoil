@@ -1,18 +1,20 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import type { Product } from "@/lib/data";
 import { PRODUCT_IMAGES } from "@/lib/imageConfig";
+import { formatPrice } from "@/lib/cartUtils";
 
 const ITEMS_PER_PAGE = 12;
 
 interface ProductListProps {
   products: Product[];
   onProductDragStart: (product: Product, e: React.DragEvent<HTMLDivElement>) => void;
+  onProductClick?: (product: Product) => void;
   selectedProductIds?: number[];
 }
 
-export default function ProductList({ products, onProductDragStart, selectedProductIds = [] }: ProductListProps) {
+export default function ProductList({ products, onProductDragStart, onProductClick, selectedProductIds = [] }: ProductListProps) {
   const [page,             setPage]            = useState(0);
   const [search,           setSearch]          = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -25,6 +27,16 @@ export default function ProductList({ products, onProductDragStart, selectedProd
       }),
     [products]
   );
+
+  // Track which product was just clicked for flash animation
+  const [clickedId, setClickedId] = useState<number | null>(null);
+
+  const handleClick = useCallback((product: Product) => {
+    if (!onProductClick) return;
+    onProductClick(product);
+    setClickedId(product.id);
+    setTimeout(() => setClickedId(null), 500);
+  }, [onProductClick]);
 
   const filteredProducts = useMemo(
     () =>
@@ -188,6 +200,7 @@ export default function ProductList({ products, onProductDragStart, selectedProd
                       e.currentTarget.style.borderColor = "rgba(201,222,202,0.30)";
                     }
                   }}
+                  onClick={() => handleClick(product)}
                 >
                   {/* Thumbnail — dùng thumb (square 120×120) để không bị giãn */}
                   <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
@@ -212,7 +225,7 @@ export default function ProductList({ products, onProductDragStart, selectedProd
                     <div
                       className="absolute inset-0 flex items-center justify-center
                                  opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      style={{ background: "rgba(47,86,50,0.55)" }}
+                      style={{ background: "rgba(47,86,50,0.55)", cursor: onProductClick ? "pointer" : "grab" }}
                     >
                       <div
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-bold"
@@ -221,11 +234,22 @@ export default function ProductList({ products, onProductDragStart, selectedProd
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24"
                           stroke="currentColor" strokeWidth={2.5}>
                           <path strokeLinecap="round" strokeLinejoin="round"
-                            d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+                            d="M12 4v16m8-8H4" />
                         </svg>
-                        Kéo vào giỏ
+                        Nhấp hoặc kéo để thêm
                       </div>
                     </div>
+
+                    {/* Click flash animation */}
+                    {clickedId === product.id && (
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background: "rgba(34,197,94,0.35)",
+                          animation: "clickFlash 0.5s ease-out forwards",
+                        }}
+                      />
+                    )}
 
                     {/* Badge */}
                     {product.badge && (
@@ -285,6 +309,14 @@ export default function ProductList({ products, onProductDragStart, selectedProd
           </div>
         )}
       </div>
+
+      {/* Click flash keyframes */}
+      <style>{`
+        @keyframes clickFlash {
+          0% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+      `}</style>
 
       {/* ── Pagination ── */}
       {totalPages > 1 && (

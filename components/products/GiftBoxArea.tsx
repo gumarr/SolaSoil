@@ -2,6 +2,7 @@
 
 import type { Product } from "@/lib/data";
 import { PRODUCT_IMAGES } from "@/lib/imageConfig";
+import { formatPrice, parseWeightToGrams } from "@/lib/cartUtils";
 
 export interface GiftBoxItem {
   product: Product;
@@ -33,8 +34,8 @@ export default function GiftBoxArea({
 
   const getTotalWeight = () =>
     items.reduce((s, i) => {
-      const w = parseFloat(i.product.weight);
-      return s + (isNaN(w) ? 0 : w * i.quantity);
+      const w = parseWeightToGrams(i.product.weight);
+      return s + w * i.quantity;
     }, 0);
 
   const handleRemove = (id: number) =>
@@ -168,15 +169,15 @@ export default function GiftBoxArea({
                       {isDiscountActive ? (
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="text-[10px] line-through" style={{ color: "#b0b0b0" }}>
-                            {item.product.price}
+                            {formatPrice(item.product.priceNum)}
                           </span>
                           <span className="font-extrabold text-xs" style={{ color: "#16a34a" }}>
-                            {((item.product.priceNum * 0.9) / 1000).toFixed(0)}k đ
+                            {formatPrice(Math.round(item.product.priceNum * 0.9))}
                           </span>
                         </div>
                       ) : (
                         <p className="font-extrabold text-xs mt-0.5" style={{ color: "#d4922b" }}>
-                          {item.product.price}
+                          {formatPrice(item.product.priceNum)}
                         </p>
                       )}
                     </div>
@@ -245,15 +246,15 @@ export default function GiftBoxArea({
                       {isDiscountActive ? (
                         <>
                           <span className="line-through text-[10px] mr-1" style={{ color: "#b0b0b0" }}>
-                            {((item.product.priceNum * item.quantity) / 1000).toFixed(0)}k
+                            {formatPrice(item.product.priceNum * item.quantity)}
                           </span>
                           <span className="font-extrabold" style={{ color: "#16a34a" }}>
-                            {((item.product.priceNum * 0.9 * item.quantity) / 1000).toFixed(0)}k đ
+                            {formatPrice(Math.round(item.product.priceNum * 0.9 * item.quantity))}
                           </span>
                         </>
                       ) : (
                         <span className="font-extrabold" style={{ color: "#d4922b" }}>
-                          {((item.product.priceNum * item.quantity) / 1000).toFixed(0)}k đ
+                          {formatPrice(item.product.priceNum * item.quantity)}
                         </span>
                       )}
                     </span>
@@ -277,7 +278,9 @@ export default function GiftBoxArea({
               <div className="flex justify-between text-xs">
                 <span style={{ color: "#6fa470" }}>Tổng khối lượng</span>
                 <span className="font-semibold" style={{ color: "#2f5632" }}>
-                  {getTotalWeight().toFixed(0)}{getTotalWeight() > 1000 ? " kg" : " g"}
+                  {getTotalWeight() >= 1000
+                    ? `${(getTotalWeight() / 1000).toFixed(1)} kg`
+                    : `${getTotalWeight().toFixed(0)} g`}
                 </span>
               </div>
               <div className="flex justify-between text-xs">
@@ -297,15 +300,15 @@ export default function GiftBoxArea({
               {isDiscountActive ? (
                 <div className="text-right">
                   <span className="text-xs line-through block" style={{ color: "#b0b0b0" }}>
-                    {(getTotalPrice() / 1000).toFixed(0)}k đ
+                    {formatPrice(getTotalPrice())}
                   </span>
                   <span className="font-extrabold text-lg" style={{ color: "#16a34a" }}>
-                    {(getTotalPrice() * 0.9 / 1000).toFixed(0)}k đ
+                    {formatPrice(Math.round(getTotalPrice() * 0.9))}
                   </span>
                 </div>
               ) : (
                 <span className="font-extrabold text-lg" style={{ color: "#d4922b" }}>
-                  {(getTotalPrice() / 1000).toFixed(0)}k đ
+                  {formatPrice(getTotalPrice())}
                 </span>
               )}
             </div>

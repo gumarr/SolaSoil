@@ -127,7 +127,7 @@ export const HERO_IMAGES = {
    *  Đặt thành "" để tắt ảnh, dùng mesh gradient thuần.
    * ══════════════════════════════════════════════════
    */
-  background: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=1800&h=1000&fit=crop&q=90",
+  background: "https://cafefcdn.com/thumb_w/640/203337114487263232/2023/2/25/photo-13-16773246143791014803577.jpg",
 
   // ── Lựa chọn thay thế — bỏ comment dòng muốn dùng ──
   // "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1800&h=1000&fit=crop&q=90"  // rừng xanh aerial
@@ -166,7 +166,7 @@ export const HERO_IMAGES = {
 // QUOTE / BANNER SECTION — ảnh nền cảnh rừng full-width
 // ----------------------------------------------------------
 export const QUOTE_BG =
-  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1400&h=600&fit=crop&q=85";
+  "https://cafefcdn.com/thumb_w/640/203337114487263232/2023/2/25/photo-14-16773246173881768150307.jpg";
 
 // ----------------------------------------------------------
 // ABOUT PAGE
