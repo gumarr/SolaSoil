@@ -5,6 +5,35 @@ import { PRODUCTS } from "@/lib/data";
 export type CartElement = CartItem | GiftBox;
 
 /**
+ * Format a numeric price to "250.000 VND" display string.
+ * Uses vi-VN locale for dot-separated thousands.
+ */
+export function formatPrice(price: number): string {
+  return `${price.toLocaleString("vi-VN")} VND`;
+}
+
+/**
+ * Parse a weight/volume string to grams.
+ * Handles: "1kg" → 1000, "200g" → 200, "500ml" → 500 (1ml ≈ 1g).
+ * Falls back to 0 for unparseable strings.
+ */
+export function parseWeightToGrams(weight: string): number {
+  const match = weight.trim().toLowerCase().match(/^([\d.]+)\s*(kg|g|ml)?$/);
+  if (!match) return 0;
+
+  const value = parseFloat(match[1]);
+  if (isNaN(value)) return 0;
+
+  const unit = match[2] || "g";
+  switch (unit) {
+    case "kg": return value * 1000;
+    case "ml": return value; // 1ml ≈ 1g
+    case "g":
+    default:   return value;
+  }
+}
+
+/**
  * Check if an item is a GiftBox
  */
 export function isGiftBox(item: CartElement): item is GiftBox {
@@ -59,11 +88,11 @@ export function getPrice(item: CartElement): number {
 }
 
 /**
- * Get display price string for cart element
+ * Get display price string for cart element — uses "X VND" format
  */
 export function getPriceDisplay(item: CartElement): string {
   const price = getPrice(item);
-  return `${(price / 1000).toFixed(0)}k đ`;
+  return formatPrice(price);
 }
 
 /**

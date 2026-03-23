@@ -227,7 +227,7 @@ export default function CartDrawer() {
               <div className="flex items-center justify-between text-sm">
                 <span style={{ color: "#4d8550" }}>Tạm tính ({count} sp)</span>
                 <span className="font-bold" style={{ color: "#1a2e1b" }}>
-                  {total.toLocaleString("vi-VN")}đ
+                  {total.toLocaleString("vi-VN")} VND
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -260,7 +260,7 @@ export default function CartDrawer() {
                 boxShadow: "0 6px 24px rgba(47,86,50,0.30)",
               }}
             >
-              Thanh Toán — {total.toLocaleString("vi-VN")}đ
+              Thanh Toán — {total.toLocaleString("vi-VN")} VND
             </button>
             <button
               onClick={closeCart}
