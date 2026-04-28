@@ -2,8 +2,24 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { HERO_IMAGES } from "@/lib/imageConfig";
-import { ArrowRight } from "@phosphor-icons/react";
+
+interface HeroConfig {
+  background?: string;
+  main?: string;
+  floatingCards?: { name: string; price: string; img: string }[];
+  toastProduct?: string;
+}
+
+const DEFAULT_HERO: HeroConfig = {
+  background: 'https://cafefcdn.com/thumb_w/640/203337114487263232/2023/2/25/photo-13-16773246143791014803577.jpg',
+  main: 'https://images.unsplash.com/photo-1553307236-8783cc0a3b9e?q=80&w=774&auto=format&fit=crop',
+  floatingCards: [
+    { name: 'Thịt Gác Bếp', price: '250.000đ', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=320&h=240&fit=crop&q=80' },
+    { name: 'Dâu Tây Mộc Châu', price: '55.000đ', img: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=600&h=450&fit=crop&q=85' },
+    { name: 'Trà Shan Tuyết', price: '120.000đ', img: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=320&h=240&fit=crop&q=80' },
+  ],
+  toastProduct: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?q=80&w=774&auto=format&fit=crop',
+};
 
 const STATS = [
   { value: "50+",  label: "Nông dân" },
@@ -11,10 +27,11 @@ const STATS = [
   { value: "8+",   label: "Năm kinh nghiệm" },
 ];
 
-export default function HeroSection() {
+export default function HeroSection({ heroConfig }: { heroConfig?: HeroConfig }) {
   const [visible,    setVisible]    = useState(false);
   const [activeCard, setActiveCard] = useState(0);
-  const cards = HERO_IMAGES.floatingCards;
+  const cfg = { ...DEFAULT_HERO, ...heroConfig };
+  const cards = cfg.floatingCards || DEFAULT_HERO.floatingCards!;
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 80);
@@ -22,7 +39,7 @@ export default function HeroSection() {
     return () => { clearTimeout(t1); clearInterval(t2); };
   }, [cards.length]);
 
-  const hasBg = !!HERO_IMAGES.background;
+  const hasBg = !!cfg.background;
 
   return (
     <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-[#0d1a0e]">
@@ -36,7 +53,7 @@ export default function HeroSection() {
         {/* 1. Ảnh nền — opacity 0.38 để không lấn át chữ */}
         {hasBg && (
           <img
-            src={HERO_IMAGES.background}
+            src={cfg.background}
             alt=""
             aria-hidden
             className="absolute inset-0 w-full h-full object-cover"
@@ -189,7 +206,9 @@ export default function HeroSection() {
                 }}
               >
                 Khám Phá Ngay
-                <ArrowRight weight="bold" className="w-4 h-4" />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </Link>
               <Link
                 href="/create-gift-box"
@@ -201,7 +220,7 @@ export default function HeroSection() {
                   backdropFilter: "blur(12px)",
                 }}
               >
-                🎁 Tạo Gói Quà
+                 Tạo Gói Quà
               </Link>
             </div>
 
@@ -245,7 +264,7 @@ export default function HeroSection() {
               }}
             >
               <img
-                src={HERO_IMAGES.main}
+                src={cfg.main}
                 alt="Sơn La mountains"
                 className="w-full h-full object-cover opacity-70"
               />
@@ -319,7 +338,7 @@ export default function HeroSection() {
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
                   <img
-                    src={HERO_IMAGES.toastProduct}
+                    src={cfg.toastProduct}
                     alt="Mật Ong Rừng"
                     className="w-full h-full object-cover"
                   />

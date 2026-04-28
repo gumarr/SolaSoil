@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 
 export interface GiftBoxItem {
-  productId: number;
+  productId: number | string;
   quantity: number;
 }
 
@@ -14,10 +14,11 @@ export interface GiftBox {
   totalPrice: number;
   createdAt: Date;
   icon?: string;  // Visual icon for display
+  style?: string; // Gift box style (e.g. "Sang trọng", "Mộc mạc")
 }
 
 export interface CartItem {
-  id: number;
+  id: number | string;
   name: string;
   priceNum: number;
   priceLabel: string;

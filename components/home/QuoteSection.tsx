@@ -1,13 +1,13 @@
-import { QUOTE_BG } from "@/lib/imageConfig";
-import { ArrowRight } from "@phosphor-icons/react";
+const DEFAULT_QUOTE_BG = 'https://cafefcdn.com/thumb_w/640/203337114487263232/2023/2/25/photo-14-16773246173881768150307.jpg';
 
-export default function QuoteSection() {
+export default function QuoteSection({ quoteBg }: { quoteBg?: string }) {
+  const bgUrl = quoteBg || DEFAULT_QUOTE_BG;
   return (
     <section className="relative py-24 overflow-hidden">
       {/* Background — ảnh từ imageConfig */}
       <div className="absolute inset-0">
         <img
-          src={QUOTE_BG}
+          src={bgUrl}
           alt="Rừng núi Sơn La"
           className="w-full h-full object-cover"
         />
@@ -88,7 +88,9 @@ export default function QuoteSection() {
           }}
         >
           Đọc Câu Chuyện
-          <ArrowRight weight="bold" className="w-4 h-4" />
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
         </a>
       </div>
     </section>

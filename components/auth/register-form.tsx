@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { CheckCircle, WarningCircle, CircleNotch, ArrowRight } from '@phosphor-icons/react'
+import { createClient } from '@/utils/supabase/client'
+import { signup } from '@/app/auth/actions'
 
 export function RegisterForm() {
   const [fullName, setFullName] = useState('')
@@ -13,45 +13,25 @@ export function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
-
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     setSuccess(false)
 
-    // Supabase Auth requires minimum 6 characters for default setting
-    if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự')
-      setLoading(false)
-      return
-    }
+    const formData = new FormData()
+    formData.append('email', email)
+    formData.append('password', password)
+    formData.append('fullName', fullName)
 
-    const { error: signUpError, data } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-      },
-    })
+    const result = await signup(formData)
 
-    if (signUpError) {
-      setError(signUpError.message)
+    if (result?.error) {
+      setError(result.error)
       setLoading(false)
-    } else {
-      if (data?.session) {
-        // Automatically logged in (if email confirmation is turned off)
-        router.push('/')
-        router.refresh()
-      } else {
-        // Email confirmation required
-        setSuccess(true)
-        setLoading(false)
-      }
+    } else if (result?.success) {
+      setSuccess(true)
+      setLoading(false)
     }
   }
 
@@ -62,7 +42,7 @@ export function RegisterForm() {
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-32 h-32 bg-emerald-400/30 rounded-full blur-3xl"></div>
         <div className="relative z-10 space-y-6">
           <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-            <CheckCircle weight="fill" className="w-16 h-16 text-white drop-shadow-md" />
+            <svg className="w-12 h-12 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           </div>
           <h2 className="text-3xl font-black text-white tracking-tight drop-shadow-lg">Đăng ký thành công!</h2>
           <div className="bg-black/20 backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-inner">
@@ -78,7 +58,7 @@ export function RegisterForm() {
           </p>
           <Link href="/login" className="mt-8 inline-flex justify-center items-center w-full py-4 px-6 border border-white/30 text-base font-bold rounded-2xl text-white bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.3)] hover:-translate-y-1">
             Đến trang Đăng nhập
-            <ArrowRight weight="bold" className="w-5 h-5 ml-2" />
+            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
           </Link>
         </div>
       </div>
@@ -146,7 +126,7 @@ export function RegisterForm() {
 
           {error && (
             <div className="text-rose-200 text-sm font-medium bg-rose-500/20 backdrop-blur-md p-4 rounded-2xl border border-rose-500/30 flex items-center shadow-[0_4px_12px_rgba(225,29,72,0.2)]">
-              <WarningCircle weight="bold" className="w-5 h-5 mr-3 shrink-0" />
+              <svg className="w-5 h-5 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path></svg>
               {error}
             </div>
           )}
@@ -159,7 +139,10 @@ export function RegisterForm() {
             >
               {loading ? (
                 <span className="flex items-center">
-                  <CircleNotch weight="bold" className="animate-spin mr-3 h-5 w-5 text-white" />
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   Đang xử lý...
                 </span>
               ) : (

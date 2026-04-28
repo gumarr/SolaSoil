@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import NavBar from "@/components/home/NavBar";
@@ -12,6 +12,14 @@ import Footer from "@/components/home/Footer";
 import type { Product } from "@/lib/data";
 import type { GiftBoxItem as GiftBoxItemType } from "@/components/products/GiftBoxArea";
 
+// ── Gift box style options ──
+const GIFT_BOX_STYLES = [
+  { id: "moc-mac",    label: "Mộc mạc",    emoji: "🌿", desc: "Tự nhiên, mộc mạc" },
+  { id: "sang-trong", label: "Sang trọng",  emoji: "✨", desc: "Cao cấp, tinh tế" },
+  { id: "don-gian",   label: "Đơn giản",    emoji: "🎀", desc: "Gọn gàng, tinh gọn" },
+  { id: "thanh-lich", label: "Thanh lịch",  emoji: "🎁", desc: "Nhã nhặn, thanh lịch" },
+];
+
 export default function CreateGiftBox() {
   const router = useRouter();
   const { addGiftBox } = useCart();
@@ -20,12 +28,16 @@ export default function CreateGiftBox() {
   const [draggedProduct, setDraggedProduct] = useState<Product | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [lastAddedId, setLastAddedId] = useState<number | null>(null);
+  const [lastAddedId, setLastAddedId] = useState<number | string | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState(GIFT_BOX_STYLES[0].id);
 
   // Discount logic: ≥5 total items
-  const totalQuantity = giftBoxItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = giftBoxItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0,
+  );
   const isDiscountApplied = totalQuantity >= 5;
-  const selectedProductIds = giftBoxItems.map(item => item.product.id);
+  const selectedProductIds = giftBoxItems.map((item) => item.product.id);
 
   // Confetti effect when first item added
   useEffect(() => {
@@ -36,7 +48,28 @@ export default function CreateGiftBox() {
     }
   }, [giftBoxItems.length]);
 
-  const handleProductDragStart = (product: Product, e: React.DragEvent<HTMLDivElement>) => {
+  // ── Shared logic: add a product to the gift box ──
+  const addProductToBox = useCallback((product: Product) => {
+    setLastAddedId(product.id);
+    setGiftBoxItems((prev) => {
+      const existing = prev.find((item) => item.product.id === product.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        );
+      }
+      return [...prev, { product, quantity: 1 }];
+    });
+    setTimeout(() => setLastAddedId(null), 400);
+  }, []);
+
+  // ── Drag & drop handlers ──
+  const handleProductDragStart = (
+    product: Product,
+    e: React.DragEvent<HTMLDivElement>,
+  ) => {
     setDraggedProduct(product);
     e.dataTransfer.effectAllowed = "copy";
     e.dataTransfer.setData("product", JSON.stringify(product));
@@ -49,7 +82,6 @@ export default function CreateGiftBox() {
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    // Only set isDragOverBox to false if leaving the drop zone entirely
     if (e.currentTarget === e.target) {
       setIsDragOverBox(false);
     }
@@ -64,31 +96,23 @@ export default function CreateGiftBox() {
       if (!productData) return;
 
       const product = JSON.parse(productData) as Product;
-      
-      // Add item with animation
-      setLastAddedId(product.id);
-      setGiftBoxItems(prev => {
-        const existing = prev.find(item => item.product.id === product.id);
-        if (existing) {
-          return prev.map(item =>
-            item.product.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          );
-        }
-        return [...prev, { product, quantity: 1 }];
-      });
-      setTimeout(() => setLastAddedId(null), 400);
-
-      // Reset dragged product
+      addProductToBox(product);
       setDraggedProduct(null);
     } catch (error) {
       console.error("Error parsing dropped product:", error);
     }
   };
 
+  // ── Click-to-add handler ──
+  const handleProductClick = useCallback((product: Product) => {
+    addProductToBox(product);
+  }, [addProductToBox]);
+
   const getOriginalTotalPrice = () => {
-    return giftBoxItems.reduce((sum, item) => sum + item.product.priceNum * item.quantity, 0);
+    return giftBoxItems.reduce(
+      (sum, item) => sum + item.product.priceNum * item.quantity,
+      0,
+    );
   };
 
   const getFinalTotalPrice = () => {
@@ -103,17 +127,18 @@ export default function CreateGiftBox() {
     }
 
     const giftBoxId = `gift-box-${Date.now()}`;
-    
+
     addGiftBox({
       id: giftBoxId,
       type: "gift-box",
-      items: giftBoxItems.map(item => ({
+      items: giftBoxItems.map((item) => ({
         productId: item.product.id,
         quantity: item.quantity,
       })),
-      totalPrice: getFinalTotalPrice(), // Send the final discounted price to Cart
+      totalPrice: getFinalTotalPrice(),
       createdAt: new Date(),
-      icon: "🎁",  // Set icon for display
+      icon: "🎁",
+      style: selectedStyle,
     });
 
     setShowSuccessMessage(true);
@@ -126,13 +151,13 @@ export default function CreateGiftBox() {
   return (
     <div className="min-h-screen bg-white">
       <NavBar />
-      
+
       {/* Banner Section */}
       <div className="bg-green-50">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 py-12">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 mb-4 text-green-600 text-sm">
-            <button 
+            <button
               onClick={() => router.push("/")}
               className="hover:text-green-900 transition-colors"
             >
@@ -141,11 +166,14 @@ export default function CreateGiftBox() {
             <span className="text-green-600">/</span>
             <span className="text-green-900 font-semibold">Tạo Gói Quà</span>
           </div>
-          
+
           {/* Title and Description */}
-          <h1 className="text-4xl font-bold text-green-900 mb-2">Tạo Gói Quà</h1>
+          <h1 className="text-4xl font-bold text-green-900 mb-2">
+            Tạo Gói Quà
+          </h1>
           <p className="text-green-600 text-base">
-            Kéo và thả những sản phẩm yêu thích của bạn để tạo một gói quà độc đáo
+            Kéo và thả hoặc nhấp vào sản phẩm yêu thích để tạo một gói quà độc
+            đáo
           </p>
         </div>
       </div>
@@ -164,7 +192,9 @@ export default function CreateGiftBox() {
                 style={{
                   left: Math.random() * 100 + "%",
                   top: Math.random() * 50 + "%",
-                  backgroundColor: ["#22c55e", "#16a34a", "#4ade80", "#dcfce7"][Math.floor(Math.random() * 4)],
+                  backgroundColor: ["#22c55e", "#16a34a", "#4ade80", "#dcfce7"][
+                    Math.floor(Math.random() * 4)
+                  ],
                   animation: `confetti-fall 2s ease-out forwards`,
                   animationDelay: `${Math.random() * 0.5}s`,
                 }}
@@ -187,38 +217,37 @@ export default function CreateGiftBox() {
             ✓ Gói quà đã được thêm vào giỏ hàng!
           </div>
         )}
-{/* Tips Section */}
-        <div className="bg-green-50 border-t border-green-200 py-8 mb-8">
-          <div className="max-w-7xl mx-auto px-5 sm:px-8">
-            <h3 className="text-lg font-bold text-green-900 mb-4">💡 Mẹo Tạo Gói Quà</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold text-gray-900 mb-2">🎯 Kéo Sản Phẩm</h4>
-                <p className="text-sm text-gray-600">
-                  Kéo bất kỳ sản phẩm nào từ danh sách bên trái vào khu vực gói quà
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold text-gray-900 mb-2">📦 Điều Chỉnh Số Lượng</h4>
-                <p className="text-sm text-gray-600">
-                  Sử dụng nút + / - để điều chỉnh số lượng sản phẩm trong gói
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold text-gray-900 mb-2">✨ Hoàn Thành</h4>
-                <p className="text-sm text-gray-600">
-                  Nhấn nút "Thêm Gói Quà Vào Giỏ Hàng" để hoàn tất tạo gói quà
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold text-gray-900 mb-2">🎁 Gói Quà Đẹp</h4>
-                <p className="text-sm text-gray-600">
-                  Tạo bộ sưu tập quà tặng hoàn hảo cho người thân
-                </p>
-              </div>
-            </div>
+
+        {/* ── Tips Section — compact redesign ── */}
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-6">
+          <div
+            className="rounded-xl px-5 py-3 flex flex-wrap items-center gap-x-6 gap-y-2"
+            style={{
+              background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
+              border: "1px solid rgba(201,222,202,0.40)",
+            }}
+          >
+            <span className="text-sm font-semibold" style={{ color: "#2f5632" }}>
+              💡 Mẹo:
+            </span>
+            <span className="text-xs" style={{ color: "#4d8550" }}>
+              🎯 Nhấp hoặc kéo sản phẩm vào gói quà
+            </span>
+            <span className="text-xs hidden sm:inline" style={{ color: "#9dc49e" }}>·</span>
+            <span className="text-xs" style={{ color: "#4d8550" }}>
+              📦 Dùng nút +/− để chỉnh số lượng
+            </span>
+            <span className="text-xs hidden sm:inline" style={{ color: "#9dc49e" }}>·</span>
+            <span className="text-xs" style={{ color: "#4d8550" }}>
+              ✨ Mua 5 sản phẩm — giảm 10%
+            </span>
+            <span className="text-xs hidden sm:inline" style={{ color: "#9dc49e" }}>·</span>
+            <span className="text-xs" style={{ color: "#4d8550" }}>
+              🎁 Nhấn "Thêm vào giỏ" để hoàn tất
+            </span>
           </div>
         </div>
+
         {/* Main Layout */}
         <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
@@ -227,12 +256,72 @@ export default function CreateGiftBox() {
               <ProductList
                 products={PRODUCTS}
                 onProductDragStart={handleProductDragStart}
+                onProductClick={handleProductClick}
                 selectedProductIds={selectedProductIds}
               />
             </div>
 
-            {/* Right Side - Promotion + Gift Box Area (1 column) */}
+            {/* Right Side - Style + Promotion + Gift Box Area (1 column) */}
             <div className="flex flex-col gap-4 min-h-0">
+              {/* ── Gift Box Style Selector ── */}
+              <div className="shrink-0">
+                <h3
+                  className="text-xs font-semibold mb-2 uppercase tracking-wide"
+                  style={{ color: "#6fa470" }}
+                >
+                  Phong cách gói quà
+                </h3>
+                <div className="grid grid-cols-4 gap-2">
+                  {GIFT_BOX_STYLES.map((style) => {
+                    const isActive = selectedStyle === style.id;
+                    return (
+                      <button
+                        key={style.id}
+                        onClick={() => setSelectedStyle(style.id)}
+                        className="relative rounded-xl py-2.5 px-1 flex flex-col items-center gap-1 transition-all duration-200"
+                        style={{
+                          background: isActive
+                            ? "linear-gradient(135deg, #2f5632, #4d8550)"
+                            : "rgba(255,255,255,0.90)",
+                          border: isActive
+                            ? "1.5px solid #2f5632"
+                            : "1px solid rgba(201,222,202,0.40)",
+                          boxShadow: isActive
+                            ? "0 4px 16px rgba(47,86,50,0.20)"
+                            : "0 1px 4px rgba(47,86,50,0.05)",
+                          color: isActive ? "#faf8f4" : "#2f5632",
+                          transform: isActive ? "translateY(-1px)" : "none",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.borderColor = "rgba(157,196,158,0.60)";
+                            e.currentTarget.style.boxShadow = "0 3px 12px rgba(47,86,50,0.12)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) {
+                            e.currentTarget.style.borderColor = "rgba(201,222,202,0.40)";
+                            e.currentTarget.style.boxShadow = "0 1px 4px rgba(47,86,50,0.05)";
+                          }
+                        }}
+                      >
+                        <span className="text-lg">{style.emoji}</span>
+                        <span className="text-[10px] font-semibold leading-tight">
+                          {style.label}
+                        </span>
+                        {/* Active indicator dot */}
+                        {isActive && (
+                          <div
+                            className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white"
+                            style={{ background: "#22c55e" }}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Promotion Banner */}
               <div className="shrink-0">
                 <PromotionBanner
@@ -278,35 +367,7 @@ export default function CreateGiftBox() {
               )}
             </button>
           </div>
-          {giftBoxItems.length > 0 && (
-            <div className="text-center mt-4 space-y-1">
-              <p className="text-sm text-gray-600">
-                Tổng giá:{" "}
-                {isDiscountApplied ? (
-                  <>
-                    <span className="line-through text-gray-400 text-sm mr-2">
-                      {(getOriginalTotalPrice() / 1000).toFixed(0)}k đ
-                    </span>
-                    <span className="font-bold text-green-600 text-lg">
-                      {(getFinalTotalPrice() / 1000).toFixed(0)}k đ
-                    </span>
-                  </>
-                ) : (
-                  <span className="font-bold text-green-800 text-base">
-                    {(getFinalTotalPrice() / 1000).toFixed(0)}k đ
-                  </span>
-                )}
-              </p>
-              {isDiscountApplied && (
-                <p className="text-xs text-green-600 font-semibold">
-                  ✅ Đã áp dụng giảm giá 10%
-                </p>
-              )}
-            </div>
-          )}
         </div>
-
-        
       </div>
       <style>{`
         @keyframes pulse {

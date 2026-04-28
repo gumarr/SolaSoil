@@ -1,4 +1,4 @@
-import { Leaf } from "@phosphor-icons/react";
+"use client";
 
 export default function Footer() {
   return (
@@ -22,7 +22,9 @@ export default function Footer() {
                 className="w-9 h-9 rounded-xl flex items-center justify-center"
                 style={{ background: "rgba(157,196,158,0.12)", border: "1px solid rgba(157,196,158,0.20)" }}
               >
-                <Leaf weight="fill" className="w-5 h-5 text-[#9dc49e]" />
+                <svg viewBox="0 0 24 24" className="w-5 h-5" style={{ fill: "#9dc49e" }}>
+                  <path d="M17 8C8 10 5.9 16.17 3.82 21H5.71C6.47 19.1 7.5 17.1 9 15.5C11.07 16.8 13.92 17 17 8z" />
+                </svg>
               </div>
               <div>
                 <span className="font-extrabold text-base text-white block leading-none">Mộc Sơn</span>

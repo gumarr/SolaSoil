@@ -1,10 +1,21 @@
 "use client";
 
 import { useInView } from "@/hooks/useInView";
-import { TESTIMONIALS } from "@/lib/data";
-import { Star } from "@phosphor-icons/react";
 
-export default function TestimonialsSection() {
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  text: string;
+  location: string;
+  rating: number;
+}
+
+interface TestimonialsSectionProps {
+  testimonials: Testimonial[];
+}
+
+export default function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
   const [ref, inView] = useInView(0.05);
 
   return (
@@ -34,9 +45,9 @@ export default function TestimonialsSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t, i) => (
+          {testimonials.map((t, i) => (
             <div
-              key={i}
+              key={t.id || i}
               style={{
                 opacity: inView ? 1 : 0,
                 transform: inView ? "none" : "translateY(28px)",
@@ -51,19 +62,18 @@ export default function TestimonialsSection() {
                   boxShadow: "0 4px 20px rgba(47,86,50,0.07)",
                 }}
               >
-                {/* Stars */}
                 <div className="flex gap-0.5 mb-4">
-                  {[...Array(5)].map((_, s) => (
-                    <Star key={s} weight="fill" className="w-4 h-4 text-[#d4922b]" />
+                  {[...Array(t.rating || 5)].map((_, s) => (
+                    <svg key={s} className="w-4 h-4" viewBox="0 0 24 24" fill="#d4922b">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
                   ))}
                 </div>
 
-                {/* Quote */}
                 <p className="text-sm leading-relaxed flex-1 italic mb-6" style={{ color: "#3a6b3d" }}>
                   &ldquo;{t.text}&rdquo;
                 </p>
 
-                {/* Author */}
                 <div className="flex items-center gap-3">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"

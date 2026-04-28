@@ -9,8 +9,6 @@ import AnnouncementBar from "@/components/home/AnnouncementBar";
 import NavBar from "@/components/home/NavBar";
 import Footer from "@/components/home/Footer";
 import LensImage from "@/components/ui/LensImage";
-import { PRODUCT_IMAGES } from "@/lib/imageConfig";
-import { MagnifyingGlass, X, Faders, Plus } from "@phosphor-icons/react";
 
 const SORT_OPTIONS = [
   { value: "featured",   label: "Nổi bật" },
@@ -67,7 +65,12 @@ export default function ProductsView() {
               color: "#1a2e1b",
             }}
           />
-          <MagnifyingGlass weight="bold" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9dc49e" }} />
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+            style={{ color: "#9dc49e" }}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+          </svg>
         </div>
       </div>
 
@@ -156,7 +159,9 @@ export default function ProductsView() {
           onMouseEnter={e => { e.currentTarget.style.borderColor = "#9dc49e"; e.currentTarget.style.color = "#2f5632"; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(201,222,202,0.50)"; e.currentTarget.style.color = "#6fa470"; }}
         >
-          <X weight="bold" className="w-3.5 h-3.5" />
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
           Xóa bộ lọc
         </button>
       )}
@@ -255,7 +260,9 @@ export default function ProductsView() {
                   background: "rgba(255,255,255,0.80)",
                 }}
               >
-                <Faders weight="bold" className="w-4 h-4" />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M7 8h10M11 12h4" />
+                </svg>
                 Lọc & Sắp xếp
               </button>
             </div>
@@ -289,10 +296,9 @@ export default function ProductsView() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map(p => {
-                  const imgs = PRODUCT_IMAGES[p.id];
                   return (
                     <div
-                      key={p.id}
+                      key={String(p.id)}
                       className="group rounded-2xl overflow-hidden flex flex-col card-hover"
                       style={{
                         background: "#ffffff",
@@ -303,8 +309,8 @@ export default function ProductsView() {
                       {/* LensImage */}
                       <div className="h-52 shrink-0">
                         <LensImage
-                          mainImage={imgs?.main}
-                          revealImage={imgs?.reveal}
+                          mainImage={p.image_main}
+                          revealImage={p.image_reveal || p.image_main}
                           baseGrad={p.grad}
                           revealGrad={p.revealGrad}
                           emoji={p.emoji}
@@ -377,7 +383,10 @@ export default function ProductsView() {
                               boxShadow: "0 4px 12px rgba(47,86,50,0.22)",
                             }}
                           >
-                            <Plus weight="bold" className="w-3.5 h-3.5" />
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                              stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
                             Giỏ hàng
                           </button>
                         </div>
@@ -418,7 +427,10 @@ export default function ProductsView() {
                 className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
                 style={{ background: "rgba(47,86,50,0.08)", color: "#4d8550" }}
               >
-                <X weight="bold" className="w-4 h-4" />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
