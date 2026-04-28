@@ -28,7 +28,7 @@ export default function CreateGiftBox() {
   const [draggedProduct, setDraggedProduct] = useState<Product | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [lastAddedId, setLastAddedId] = useState<number | null>(null);
+  const [lastAddedId, setLastAddedId] = useState<number | string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState(GIFT_BOX_STYLES[0].id);
 
   // Discount logic: ≥5 total items

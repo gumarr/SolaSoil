@@ -1,5 +1,5 @@
 import { LoginForm } from '@/components/auth/login-form'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 
@@ -10,10 +10,10 @@ export const metadata = {
 
 export default async function LoginPage() {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
 
   // Redirect to home if already logged in
-  if (session) {
+  if (user) {
     redirect('/')
   }
 

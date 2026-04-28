@@ -1,5 +1,5 @@
 export interface Product {
-  id: number;
+  id: number | string;
   name: string;
   categoryId: string;
   category: string;
@@ -12,6 +12,10 @@ export interface Product {
   grad: string;
   revealGrad: string;
   badge: string | null;
+  image_main?: string;
+  image_reveal?: string;
+  image_thumb?: string;
+  images?: string[];
 }
 
 export interface CategoryTab {

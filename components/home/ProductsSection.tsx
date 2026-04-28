@@ -2,31 +2,44 @@
 
 import { useState, useEffect } from "react";
 import { useInView } from "@/hooks/useInView";
-import { CATEGORY_TABS, type Product } from "@/lib/data";
+import { type Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import LensImage from "@/components/ui/LensImage";
-import { PRODUCT_IMAGES } from "@/lib/imageConfig";
+import { useRouter, useSearchParams } from "next/navigation";
+
+interface Category {
+  id: string;
+  name: string;
+  icon: string | null;
+}
 
 interface ProductsSectionProps {
   activeCategory: string;
-  onCategoryChange: (id: string) => void;
   filteredProducts: Product[];
+  categories: Category[];
 }
 
 export default function ProductsSection({
   activeCategory,
-  onCategoryChange,
   filteredProducts,
+  categories,
 }: ProductsSectionProps) {
   const [ref, inView] = useInView(0.05);
   const { addItem } = useCart();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const router = useRouter();
 
   // Reset to page 1 when category changes
   useEffect(() => {
     setCurrentPage(1);
   }, [activeCategory]);
+
+  const onCategoryChange = (id: string) => {
+    const params = new URLSearchParams();
+    if (id !== 'all') params.set('category', id);
+    router.push(`/?${params.toString()}`, { scroll: false });
+  };
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -38,7 +51,6 @@ export default function ProductsSection({
       className="py-24 relative overflow-hidden"
       style={{ background: "var(--ivory)" }}
     >
-      {/* Subtle bg tints */}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute top-0 right-0 w-[40%] h-[60%] opacity-30"
@@ -57,7 +69,6 @@ export default function ProductsSection({
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10">
-        {/* ── Header ── */}
         <div
           ref={ref}
           className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6"
@@ -83,7 +94,6 @@ export default function ProductsSection({
             </h2>
           </div>
 
-          {/* Category pills */}
           <div
             className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
             style={{
@@ -91,13 +101,32 @@ export default function ProductsSection({
               transition: "all 0.7s 150ms cubic-bezier(0.22,1,0.36,1)",
             }}
           >
-            {CATEGORY_TABS.map((tab) => (
+            <button
+              onClick={() => onCategoryChange('all')}
+              className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300"
+              style={
+                activeCategory === 'all'
+                  ? {
+                      background: "linear-gradient(135deg, #2f5632, #4d8550)",
+                      color: "#faf8f4",
+                      boxShadow: "0 4px 16px rgba(47,86,50,0.25)",
+                    }
+                  : {
+                      background: "rgba(47,86,50,0.07)",
+                      color: "#3a6b3d",
+                      border: "1px solid rgba(201,222,202,0.35)",
+                    }
+              }
+            >
+              🌿 Tất Cả
+            </button>
+            {categories.map((cat) => (
               <button
-                key={tab.id}
-                onClick={() => onCategoryChange(tab.id)}
+                key={cat.id}
+                onClick={() => onCategoryChange(cat.id)}
                 className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300"
                 style={
-                  activeCategory === tab.id
+                  activeCategory === cat.id
                     ? {
                         background: "linear-gradient(135deg, #2f5632, #4d8550)",
                         color: "#faf8f4",
@@ -111,144 +140,137 @@ export default function ProductsSection({
                       }
                 }
               >
-                <span>{tab.icon}</span>
-                {tab.label}
+                <span>{cat.icon}</span>
+                {cat.name}
               </button>
             ))}
           </div>
         </div>
 
-        {/* ── Product Grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {paginatedProducts.map((p, i) => {
-            const imgs = PRODUCT_IMAGES[p.id];
-
-            return (
+          {paginatedProducts.length > 0 ? paginatedProducts.map((p, i) => (
+            <div
+              key={p.id}
+              style={{
+                opacity: inView ? 1 : 0,
+                transform: inView ? "none" : "translateY(32px)",
+                transition: `all 0.65s ${i * 70}ms cubic-bezier(0.22,1,0.36,1)`,
+              }}
+            >
               <div
-                key={p.id}
+                className="group rounded-2xl overflow-hidden card-hover"
                 style={{
-                  opacity: inView ? 1 : 0,
-                  transform: inView ? "none" : "translateY(32px)",
-                  transition: `all 0.65s ${i * 70}ms cubic-bezier(0.22,1,0.36,1)`,
+                  background: "#ffffff",
+                  border: "1px solid rgba(201,222,202,0.35)",
+                  boxShadow: "0 2px 12px rgba(47,86,50,0.06)",
                 }}
               >
-                <div
-                  className="group rounded-2xl overflow-hidden card-hover"
-                  style={{
-                    background: "#ffffff",
-                    border: "1px solid rgba(201,222,202,0.35)",
-                    boxShadow: "0 2px 12px rgba(47,86,50,0.06)",
-                  }}
-                >
-                  {/* ── LensImage: ảnh thật + kính lúp reveal ── */}
-                  <div className="h-52">
-                    <LensImage
-                      mainImage={imgs?.main}
-                      revealImage={imgs?.reveal}
-                      /* Gradient fallback nếu chưa cấu hình ảnh */
-                      baseGrad={p.grad}
-                      revealGrad={p.revealGrad}
-                      emoji={p.emoji}
-                      revealEmoji={p.revealEmoji}
-                      lensSize={130}
-                      alt={p.name}
-                      className="w-full h-full"
-                    >
-                      {/* Badge */}
-                      {p.badge && (
-                        <div className="relative z-10 p-3">
-                          <span
-                            className="px-2.5 py-1 rounded-full text-[10px] font-bold"
-                            style={{
-                              background: "rgba(250,248,244,0.92)",
-                              color: "#9a6420",
-                              backdropFilter: "blur(8px)",
-                            }}
-                          >
-                            {p.badge}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Add-to-cart overlay (hover) */}
-                      <div
-                        className="absolute inset-x-3 bottom-3 z-10
-                                   opacity-0 translate-y-2
-                                   group-hover:opacity-100 group-hover:translate-y-0
-                                   transition-all duration-300"
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addItem({
-                              id: p.id,
-                              name: p.name,
-                              priceNum: p.priceNum,
-                              priceLabel: p.price,
-                              weight: p.weight,
-                              emoji: p.emoji,
-                              grad: p.grad,
-                            });
-                          }}
-                          className="w-full py-2.5 rounded-xl text-xs font-bold btn-liquid"
+                <div className="h-52">
+                  <LensImage
+                    mainImage={p.image_main}
+                    revealImage={p.image_reveal || p.image_main}
+                    baseGrad={p.grad}
+                    revealGrad={p.revealGrad}
+                    emoji={p.emoji}
+                    revealEmoji={p.revealEmoji}
+                    lensSize={130}
+                    alt={p.name}
+                    className="w-full h-full"
+                  >
+                    {p.badge && (
+                      <div className="relative z-10 p-3">
+                        <span
+                          className="px-2.5 py-1 rounded-full text-[10px] font-bold"
                           style={{
-                            background: "rgba(250,248,244,0.95)",
-                            color: "#2f5632",
-                            backdropFilter: "blur(12px)",
-                            boxShadow: "0 4px 16px rgba(0,0,0,0.20)",
+                            background: "rgba(250,248,244,0.92)",
+                            color: "#9a6420",
+                            backdropFilter: "blur(8px)",
                           }}
                         >
-                          + Thêm vào giỏ
-                        </button>
+                          {p.badge}
+                        </span>
                       </div>
-                    </LensImage>
-                  </div>
+                    )}
 
-                  {/* ── Text Info ── */}
-                  <div className="p-4">
                     <div
-                      className="text-[10px] font-bold uppercase tracking-wider mb-1"
-                      style={{ color: "#9a6420" }}
+                      className="absolute inset-x-3 bottom-3 z-10
+                                 opacity-0 translate-y-2
+                                 group-hover:opacity-100 group-hover:translate-y-0
+                                 transition-all duration-300"
                     >
-                      {p.category}
-                    </div>
-                    <h3
-                      className="font-bold text-sm mb-1 leading-snug"
-                      style={{ color: "#1a2e1b" }}
-                    >
-                      {p.name}
-                    </h3>
-                    <p
-                      className="text-xs leading-relaxed line-clamp-2 mb-3"
-                      style={{ color: "#6fa470" }}
-                    >
-                      {p.desc}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span
-                        className="font-extrabold text-base"
-                        style={{ color: "#d4922b" }}
-                      >
-                        {p.price}
-                      </span>
-                      <span
-                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addItem({
+                            id: p.id,
+                            name: p.name,
+                            priceNum: p.priceNum,
+                            priceLabel: p.price,
+                            weight: p.weight,
+                            emoji: p.emoji,
+                            grad: p.grad,
+                          });
+                        }}
+                        className="w-full py-2.5 rounded-xl text-xs font-bold btn-liquid"
                         style={{
-                          background: "rgba(47,86,50,0.08)",
-                          color: "#4d8550",
+                          background: "rgba(250,248,244,0.95)",
+                          color: "#2f5632",
+                          backdropFilter: "blur(12px)",
+                          boxShadow: "0 4px 16px rgba(0,0,0,0.20)",
                         }}
                       >
-                        {p.weight}
-                      </span>
+                        + Thêm vào giỏ
+                      </button>
                     </div>
+                  </LensImage>
+                </div>
+
+                <div className="p-4">
+                  <div
+                    className="text-[10px] font-bold uppercase tracking-wider mb-1"
+                    style={{ color: "#9a6420" }}
+                  >
+                    {p.category}
+                  </div>
+                  <h3
+                    className="font-bold text-sm mb-1 leading-snug"
+                    style={{ color: "#1a2e1b" }}
+                  >
+                    {p.name}
+                  </h3>
+                  <p
+                    className="text-xs leading-relaxed line-clamp-2 mb-3"
+                    style={{ color: "#6fa470" }}
+                  >
+                    {p.desc}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span
+                      className="font-extrabold text-base"
+                      style={{ color: "#d4922b" }}
+                    >
+                      {p.price}
+                    </span>
+                    <span
+                      className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                      style={{
+                        background: "rgba(47,86,50,0.08)",
+                        color: "#4d8550",
+                      }}
+                    >
+                      {p.weight}
+                    </span>
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          )) : (
+            <div className="col-span-full py-20 text-center text-stone-400 font-medium">
+              Chưa có sản phẩm nào trong mục này.
+            </div>
+          )}
         </div>
 
-        {/* ── Pagination ── */}
         {totalPages > 1 && (
           <div
             className="flex items-center justify-center gap-2 mt-12"
@@ -257,7 +279,6 @@ export default function ProductsSection({
               transition: "all 0.7s 500ms ease",
             }}
           >
-            {/* Previous button */}
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
@@ -276,7 +297,6 @@ export default function ProductsSection({
               </svg>
             </button>
 
-            {/* Page numbers */}
             <div className="flex gap-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                 <button
@@ -302,7 +322,6 @@ export default function ProductsSection({
               ))}
             </div>
 
-            {/* Next button */}
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}

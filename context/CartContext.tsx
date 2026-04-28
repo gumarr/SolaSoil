@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 
 export interface GiftBoxItem {
-  productId: number;
+  productId: number | string;
   quantity: number;
 }
 
@@ -18,7 +18,7 @@ export interface GiftBox {
 }
 
 export interface CartItem {
-  id: number;
+  id: number | string;
   name: string;
   priceNum: number;
   priceLabel: string;

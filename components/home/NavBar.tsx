@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase/client";
+import { signOut } from "@/app/auth/actions";
 import type { User } from "@supabase/supabase-js";
 
 const NAV_LINKS = [
@@ -31,8 +32,7 @@ export default function NavBar() {
   }, [supabase.auth]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    await signOut();
   };
 
   return (

@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useCallback } from "react";
 import type { Product } from "@/lib/data";
-import { PRODUCT_IMAGES } from "@/lib/imageConfig";
 import { formatPrice } from "@/lib/cartUtils";
 
 const ITEMS_PER_PAGE = 12;
@@ -11,7 +10,7 @@ interface ProductListProps {
   products: Product[];
   onProductDragStart: (product: Product, e: React.DragEvent<HTMLDivElement>) => void;
   onProductClick?: (product: Product) => void;
-  selectedProductIds?: number[];
+  selectedProductIds?: (number | string)[];
 }
 
 export default function ProductList({ products, onProductDragStart, onProductClick, selectedProductIds = [] }: ProductListProps) {
@@ -29,7 +28,7 @@ export default function ProductList({ products, onProductDragStart, onProductCli
   );
 
   // Track which product was just clicked for flash animation
-  const [clickedId, setClickedId] = useState<number | null>(null);
+  const [clickedId, setClickedId] = useState<number | string | null>(null);
 
   const handleClick = useCallback((product: Product) => {
     if (!onProductClick) return;
@@ -156,10 +155,10 @@ export default function ProductList({ products, onProductDragStart, onProductCli
         ) : (
           <div className="grid grid-cols-2 gap-2.5">
             {paginatedProducts.map(product => {
-              const imgs = PRODUCT_IMAGES[product.id];
+              const thumbUrl = product.image_thumb || product.image_main;
               return (
                 <div
-                  key={product.id}
+                  key={String(product.id)}
                   draggable
                   onDragStart={e => {
                     onProductDragStart(product, e);
@@ -204,9 +203,9 @@ export default function ProductList({ products, onProductDragStart, onProductCli
                 >
                   {/* Thumbnail — dùng thumb (square 120×120) để không bị giãn */}
                   <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
-                    {imgs?.thumb ? (
+                    {thumbUrl ? (
                       <img
-                        src={imgs.thumb}
+                        src={thumbUrl}
                         alt={product.name}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />

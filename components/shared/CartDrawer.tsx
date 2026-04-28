@@ -9,7 +9,6 @@ import {
   getGiftBoxSummary,
   getQuantity,
 } from "@/lib/cartUtils";
-import { PRODUCT_IMAGES } from "@/lib/imageConfig";
 
 export default function CartDrawer() {
   const { items, isOpen, count, total, removeItem, updateQty, closeCart } = useCart();
@@ -112,10 +111,8 @@ export default function CartDrawer() {
               const name     = getDisplayName(item);
               const qty      = getQuantity(item);
               const price    = getPriceDisplay(item);
-              // Thumbnail: real photo from config, else emoji fallback
-              const thumbSrc = !isBox && "id" in item
-                ? PRODUCT_IMAGES[item.id as number]?.thumb
-                : null;
+              // Thumbnail: no longer from PRODUCT_IMAGES, just use emoji icon
+              const thumbSrc = null;
 
               return (
                 <div

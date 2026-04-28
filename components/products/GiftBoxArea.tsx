@@ -1,7 +1,6 @@
 "use client";
 
 import type { Product } from "@/lib/data";
-import { PRODUCT_IMAGES } from "@/lib/imageConfig";
 import { formatPrice, parseWeightToGrams } from "@/lib/cartUtils";
 
 export interface GiftBoxItem {
@@ -16,7 +15,7 @@ interface GiftBoxAreaProps {
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   isDragOver: boolean;
   isDiscountActive?: boolean;
-  lastAddedId?: number | null;
+  lastAddedId?: number | string | null;
 }
 
 export default function GiftBoxArea({
@@ -38,10 +37,10 @@ export default function GiftBoxArea({
       return s + w * i.quantity;
     }, 0);
 
-  const handleRemove = (id: number) =>
+  const handleRemove = (id: number | string) =>
     onItemsChange(items.filter(i => i.product.id !== id));
 
-  const handleQty = (id: number, qty: number) => {
+  const handleQty = (id: number | string, qty: number) => {
     if (qty <= 0) { handleRemove(id); return; }
     onItemsChange(items.map(i => i.product.id === id ? { ...i, quantity: qty } : i));
   };
@@ -121,10 +120,10 @@ export default function GiftBoxArea({
           {/* ── Items list ── */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
             {items.map(item => {
-              const imgs = PRODUCT_IMAGES[item.product.id];
+              const thumbUrl = item.product.image_thumb || item.product.image_main;
               return (
                 <div
-                  key={item.product.id}
+                  key={String(item.product.id)}
                   className={`rounded-xl overflow-hidden transition-all duration-200 ${
                     lastAddedId === item.product.id ? "animate-[snapIn_0.35s_ease-out]" : ""
                   }`}
@@ -141,9 +140,9 @@ export default function GiftBoxArea({
                     {/* Thumbnail */}
                     <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
                       style={{ background: "rgba(157,196,158,0.12)" }}>
-                      {imgs?.thumb ? (
+                      {thumbUrl ? (
                         <img
-                          src={imgs.thumb}
+                          src={thumbUrl}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
                         />

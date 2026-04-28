@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
+import { signup } from '@/app/auth/actions'
 
 export function RegisterForm() {
   const [fullName, setFullName] = useState('')
@@ -12,45 +13,25 @@ export function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
-
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     setSuccess(false)
 
-    // Supabase Auth requires minimum 6 characters for default setting
-    if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự')
-      setLoading(false)
-      return
-    }
+    const formData = new FormData()
+    formData.append('email', email)
+    formData.append('password', password)
+    formData.append('fullName', fullName)
 
-    const { error: signUpError, data } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-      },
-    })
+    const result = await signup(formData)
 
-    if (signUpError) {
-      setError(signUpError.message)
+    if (result?.error) {
+      setError(result.error)
       setLoading(false)
-    } else {
-      if (data?.session) {
-        // Automatically logged in (if email confirmation is turned off)
-        router.push('/')
-        router.refresh()
-      } else {
-        // Email confirmation required
-        setSuccess(true)
-        setLoading(false)
-      }
+    } else if (result?.success) {
+      setSuccess(true)
+      setLoading(false)
     }
   }
 

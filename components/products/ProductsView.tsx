@@ -9,7 +9,6 @@ import AnnouncementBar from "@/components/home/AnnouncementBar";
 import NavBar from "@/components/home/NavBar";
 import Footer from "@/components/home/Footer";
 import LensImage from "@/components/ui/LensImage";
-import { PRODUCT_IMAGES } from "@/lib/imageConfig";
 
 const SORT_OPTIONS = [
   { value: "featured",   label: "Nổi bật" },
@@ -297,10 +296,9 @@ export default function ProductsView() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map(p => {
-                  const imgs = PRODUCT_IMAGES[p.id];
                   return (
                     <div
-                      key={p.id}
+                      key={String(p.id)}
                       className="group rounded-2xl overflow-hidden flex flex-col card-hover"
                       style={{
                         background: "#ffffff",
@@ -311,8 +309,8 @@ export default function ProductsView() {
                       {/* LensImage */}
                       <div className="h-52 shrink-0">
                         <LensImage
-                          mainImage={imgs?.main}
-                          revealImage={imgs?.reveal}
+                          mainImage={p.image_main}
+                          revealImage={p.image_reveal || p.image_main}
                           baseGrad={p.grad}
                           revealGrad={p.revealGrad}
                           emoji={p.emoji}

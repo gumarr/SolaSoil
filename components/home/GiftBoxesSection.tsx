@@ -3,36 +3,23 @@
 import { useInView } from "@/hooks/useInView";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
-import { GIFT_BOX_IMAGES } from "@/lib/imageConfig";
 
-const GIFT_BOXES = [
-  {
-    id: 101,
-    name: "Hộp Rừng Núi",
-    desc: "Thịt Gác Bếp, Mắc Khén, Hạt Dổi, Trà Shan Tuyết",
-    price: "450.000đ", priceNum: 450000, weight: "Combo",
-    emoji: "🏕️", grad: "from-stone-800 to-green-900",
-    tag: "Phổ Biến",
-  },
-  {
-    id: 102,
-    name: "Hộp Cao Nguyên Xanh",
-    desc: "Mật Ong Rừng, Trà Shan Tuyết Cổ Thụ, Mận Hậu Sấy",
-    price: "380.000đ", priceNum: 380000, weight: "Combo",
-    emoji: "🌿", grad: "from-green-800 to-teal-700",
-    tag: "Mới",
-  },
-  {
-    id: 103,
-    name: "Hộp Trái Cây Mùa Vụ",
-    desc: "Mận Hậu, Na Sầu Riêng, Dâu Tây Mộc Châu",
-    price: "320.000đ", priceNum: 320000, weight: "Combo",
-    emoji: "🍑", grad: "from-rose-800 to-purple-800",
-    tag: "Theo Mùa",
-  },
-];
+interface GiftCombo {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string | null;
+  emoji: string;
+  grad: string;
+  tag: string | null;
+}
 
-export default function GiftBoxesSection() {
+interface GiftBoxesSectionProps {
+  giftCombos: GiftCombo[];
+}
+
+export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) {
   const [ref, inView] = useInView(0.05);
   const { addItem } = useCart();
 
@@ -116,49 +103,45 @@ export default function GiftBoxesSection() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {GIFT_BOXES.map((box, i) => {
-            const imgSrc = GIFT_BOX_IMAGES[box.id];
-
-            return (
+          {giftCombos.map((box, i) => (
+            <div
+              key={box.id}
+              style={{
+                opacity: inView ? 1 : 0,
+                transform: inView ? "none" : "translateY(32px)",
+                transition: `all 0.65s ${i * 120}ms cubic-bezier(0.22,1,0.36,1)`,
+              }}
+            >
               <div
-                key={box.id}
+                className="group rounded-2xl overflow-hidden card-hover"
                 style={{
-                  opacity: inView ? 1 : 0,
-                  transform: inView ? "none" : "translateY(32px)",
-                  transition: `all 0.65s ${i * 120}ms cubic-bezier(0.22,1,0.36,1)`,
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  backdropFilter: "blur(12px)",
                 }}
               >
-                <div
-                  className="group rounded-2xl overflow-hidden card-hover"
-                  style={{
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.10)",
-                    backdropFilter: "blur(12px)",
-                  }}
-                >
-                  {/* Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    {imgSrc ? (
-                      <img
-                        src={imgSrc}
-                        alt={box.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                    ) : (
-                      /* Emoji fallback */
-                      <div
-                        className={`w-full h-full bg-gradient-to-br ${box.grad} flex items-center justify-center text-5xl`}
-                      >
-                        {box.emoji}
-                      </div>
-                    )}
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background:
-                          "linear-gradient(to top, rgba(13,26,14,0.75) 0%, transparent 50%)",
-                      }}
+                <div className="relative h-48 overflow-hidden">
+                  {box.image_url ? (
+                    <img
+                      src={box.image_url}
+                      alt={box.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
+                  ) : (
+                    <div
+                      className={`w-full h-full bg-gradient-to-br ${box.grad} flex items-center justify-center text-5xl`}
+                    >
+                      {box.emoji}
+                    </div>
+                  )}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(13,26,14,0.75) 0%, transparent 50%)",
+                    }}
+                  />
+                  {box.tag && (
                     <div
                       className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold"
                       style={{
@@ -170,48 +153,47 @@ export default function GiftBoxesSection() {
                     >
                       {box.tag}
                     </div>
-                  </div>
+                  )}
+                </div>
 
-                  {/* Info */}
-                  <div className="p-5">
-                    <h3 className="font-bold text-base mb-1.5 text-white">{box.name}</h3>
-                    <p
-                      className="text-xs leading-relaxed mb-4"
-                      style={{ color: "rgba(201,222,202,0.65)" }}
+                <div className="p-5">
+                  <h3 className="font-bold text-base mb-1.5 text-white">{box.name}</h3>
+                  <p
+                    className="text-xs leading-relaxed mb-4"
+                    style={{ color: "rgba(201,222,202,0.65)" }}
+                  >
+                    {box.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="font-extrabold text-lg" style={{ color: "#f6c87a" }}>
+                      {new Intl.NumberFormat('vi-VN').format(box.price)}đ
+                    </span>
+                    <button
+                      onClick={() =>
+                        addItem({
+                          id: box.id,
+                          name: box.name,
+                          priceNum: box.price,
+                          priceLabel: new Intl.NumberFormat('vi-VN').format(box.price) + 'đ',
+                          weight: 'Combo',
+                          emoji: box.emoji,
+                          grad: box.grad,
+                        })
+                      }
+                      className="px-4 py-2 rounded-xl text-xs font-bold btn-liquid"
+                      style={{
+                        background: "rgba(157,196,158,0.15)",
+                        border: "1px solid rgba(157,196,158,0.25)",
+                        color: "#9dc49e",
+                      }}
                     >
-                      {box.desc}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="font-extrabold text-lg" style={{ color: "#f6c87a" }}>
-                        {box.price}
-                      </span>
-                      <button
-                        onClick={() =>
-                          addItem({
-                            id: box.id,
-                            name: box.name,
-                            priceNum: box.priceNum,
-                            priceLabel: box.price,
-                            weight: box.weight,
-                            emoji: box.emoji,
-                            grad: box.grad,
-                          })
-                        }
-                        className="px-4 py-2 rounded-xl text-xs font-bold btn-liquid"
-                        style={{
-                          background: "rgba(157,196,158,0.15)",
-                          border: "1px solid rgba(157,196,158,0.25)",
-                          color: "#9dc49e",
-                        }}
-                      >
-                        + Giỏ hàng
-                      </button>
-                    </div>
+                      + Giỏ hàng
+                    </button>
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         {/* Custom CTA */}
