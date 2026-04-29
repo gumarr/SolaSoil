@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { PRODUCTS, CATEGORY_TABS } from "@/lib/data";
+import type { Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import AnnouncementBar from "@/components/home/AnnouncementBar";
 import NavBar from "@/components/home/NavBar";
@@ -17,7 +17,12 @@ const SORT_OPTIONS = [
   { value: "name-asc",   label: "Tên: A → Z" },
 ];
 
-export default function ProductsView() {
+interface ProductsViewProps {
+  products: Product[];
+  categoryTabs: { id: string; label: string; icon: string }[];
+}
+
+export default function ProductsView({ products, categoryTabs }: ProductsViewProps) {
   const searchParams  = useSearchParams();
   const initialCat    = searchParams.get("cat") ?? "all";
 
@@ -27,7 +32,7 @@ export default function ProductsView() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const { addItem } = useCart();
 
-  let filtered = PRODUCTS
+  let filtered = products
     .filter(p => activeCategory === "all" || p.categoryId === activeCategory)
     .filter(p =>
       !search ||
@@ -80,11 +85,10 @@ export default function ProductsView() {
           style={{ color: "#9a6420" }}>
           Danh Mục
         </p>
-        <div className="space-y-0.5">
-          {CATEGORY_TABS.map(tab => {
+          {categoryTabs.map(tab => {
             const cnt = tab.id === "all"
-              ? PRODUCTS.length
-              : PRODUCTS.filter(p => p.categoryId === tab.id).length;
+              ? products.length
+              : products.filter(p => p.categoryId === tab.id).length;
             const active = activeCategory === tab.id;
             return (
               <button
@@ -244,7 +248,7 @@ export default function ProductsView() {
                   <span className="ml-1">
                     trong{" "}
                     <span className="font-semibold" style={{ color: "#2f5632" }}>
-                      {CATEGORY_TABS.find(t => t.id === activeCategory)?.label}
+                      {categoryTabs.find(t => t.id === activeCategory)?.label}
                     </span>
                   </span>
                 )}
