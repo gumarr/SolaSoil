@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { login } from '@/app/auth/actions'
+import { SocialAuth } from './SocialAuth'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -105,6 +106,9 @@ export function LoginForm() {
             </button>
           </div>
         </form>
+
+        <SocialAuth />
+
         <div className="mt-8 text-center">
            <p className="text-sm font-medium text-white/80">
             Chưa có tài khoản?{' '}

@@ -85,6 +85,7 @@ export default function ProductsView({ products, categoryTabs }: ProductsViewPro
           style={{ color: "#9a6420" }}>
           Danh Mục
         </p>
+        <div className="space-y-0.5">
           {categoryTabs.map(tab => {
             const cnt = tab.id === "all"
               ? products.length

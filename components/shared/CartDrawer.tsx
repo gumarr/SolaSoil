@@ -10,8 +10,16 @@ import {
   getQuantity,
 } from "@/lib/cartUtils";
 
+import { useRouter } from "next/navigation";
+
 export default function CartDrawer() {
   const { items, isOpen, count, total, removeItem, updateQty, closeCart } = useCart();
+  const router = useRouter();
+
+  const handleCheckout = () => {
+    closeCart();
+    router.push("/checkout");
+  };
 
   return (
     <>
@@ -251,6 +259,7 @@ export default function CartDrawer() {
             </div>
 
             <button
+              onClick={handleCheckout}
               className="w-full py-4 rounded-2xl font-bold text-sm text-white btn-liquid"
               style={{
                 background: "linear-gradient(135deg, #2f5632, #4d8550)",
