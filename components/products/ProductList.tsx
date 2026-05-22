@@ -208,6 +208,7 @@ export default function ProductList({ products, onProductDragStart, onProductCli
                         src={thumbUrl}
                         alt={product.name}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        suppressHydrationWarning
                       />
                     ) : (
                       /* Gradient + emoji fallback */

@@ -8,6 +8,8 @@ export default function CategoriesClient({ categories }: { categories: any[] }) 
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState('')
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -19,19 +21,58 @@ export default function CategoriesClient({ categories }: { categories: any[] }) 
     else { setModalOpen(false); setEditing(null); router.refresh() }
   }
 
+  const filteredCategories = categories
+    .filter(c => {
+      const matchesSearch = 
+        c.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        c.description?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        c.subtitle?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'name_asc') return (a.name || '').localeCompare(b.name || '');
+      if (sortBy === 'name_desc') return (b.name || '').localeCompare(a.name || '');
+      return 0;
+    });
+
   return (
     <>
-      <AdminPageHeader title="Danh Mục" subtitle={`${categories.length} danh mục`} onAdd={() => { setEditing(null); setModalOpen(true) }} />
-      <AdminTable headers={['Icon', 'Tên', 'Mô tả', 'Subtitle', '']}>
-        {categories.map(c => (
+      <AdminPageHeader title="Danh Mục" subtitle={`${filteredCategories.length} danh mục`} onAdd={() => { setEditing(null); setModalOpen(true) }} />
+
+      {/* Bộ lọc và Tìm kiếm */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div>
+          <input
+            type="text"
+            placeholder="Tìm kiếm danh mục..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-sm placeholder-zinc-500"
+          />
+        </div>
+        <div>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-sm appearance-none cursor-pointer"
+          >
+            <option value="" className="bg-zinc-950 text-zinc-300">Sắp xếp theo...</option>
+            <option value="name_asc" className="bg-zinc-950 text-zinc-300">Tên: A-Z</option>
+            <option value="name_desc" className="bg-zinc-950 text-zinc-300">Tên: Z-A</option>
+          </select>
+        </div>
+      </div>
+
+      <AdminTable headers={['Icon', 'Tên', 'Mô tả', 'Subtitle', 'Thao tác']}>
+        {filteredCategories.map(c => (
           <AdminRow key={c.id}>
-            <AdminCell><span style={{ fontSize: 24 }}>{c.icon}</span></AdminCell>
-            <AdminCell><span style={{ fontWeight: 600, color: '#faf8f4' }}>{c.name}</span></AdminCell>
+            <AdminCell><span className="text-2xl shrink-0">{c.icon || '📦'}</span></AdminCell>
+            <AdminCell><span className="font-semibold text-zinc-100">{c.name}</span></AdminCell>
             <AdminCell>{c.description || '—'}</AdminCell>
             <AdminCell>{c.subtitle || '—'}</AdminCell>
             <AdminCell>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button style={{ padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'rgba(157,196,158,0.12)', color: '#9dc49e', fontWeight: 600, fontSize: 12 }}
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-semibold text-xs transition-colors cursor-pointer"
                   onClick={() => { setEditing(c); setModalOpen(true) }}>Sửa</button>
                 <DeleteButton onDelete={async () => { const r = await deleteCategory(c.id); if (r?.error) alert(r.error); else router.refresh() }} />
               </div>

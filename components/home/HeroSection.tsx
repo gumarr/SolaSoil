@@ -58,6 +58,7 @@ export default function HeroSection({ heroConfig }: { heroConfig?: HeroConfig })
             aria-hidden
             className="absolute inset-0 w-full h-full object-cover"
             style={{ opacity: 0.38 }}
+            suppressHydrationWarning
           />
         )}
 
@@ -267,6 +268,7 @@ export default function HeroSection({ heroConfig }: { heroConfig?: HeroConfig })
                 src={cfg.main}
                 alt="Sơn La mountains"
                 className="w-full h-full object-cover opacity-70"
+                suppressHydrationWarning
               />
               <div
                 className="absolute inset-0"
@@ -309,6 +311,7 @@ export default function HeroSection({ heroConfig }: { heroConfig?: HeroConfig })
                   src={cards[activeCard].img}
                   alt={cards[activeCard].name}
                   className="w-full h-full object-cover transition-opacity duration-400"
+                  suppressHydrationWarning
                 />
               </div>
               <div className="p-3">
@@ -341,6 +344,7 @@ export default function HeroSection({ heroConfig }: { heroConfig?: HeroConfig })
                     src={cfg.toastProduct}
                     alt="Mật Ong Rừng"
                     className="w-full h-full object-cover"
+                    suppressHydrationWarning
                   />
                 </div>
                 <div>

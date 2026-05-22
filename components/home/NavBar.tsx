@@ -20,17 +20,40 @@ export default function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { count, openCart } = useCart();
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) =>
-      setUser(session?.user ?? null)
-    );
+    const checkAdmin = async (userId: string) => {
+      try {
+        const { data } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', userId)
+          .single();
+        setIsAdmin(data?.role === 'admin');
+      } catch (err) {
+        setIsAdmin(false);
+      }
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) checkAdmin(u.id);
+      else setIsAdmin(false);
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_e, session) => setUser(session?.user ?? null)
+      (_e, session) => {
+        const u = session?.user ?? null;
+        setUser(u);
+        if (u) checkAdmin(u.id);
+        else setIsAdmin(false);
+      }
     );
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const handleLogout = async () => {
     await signOut();
@@ -63,6 +86,7 @@ export default function NavBar() {
               src="/Logo.jpg"
               alt="Mộc Sơn Logo"
               className="w-full h-full object-cover"
+              suppressHydrationWarning
             />
           </div>
           <div>
@@ -150,6 +174,16 @@ export default function NavBar() {
                       {user.email}
                     </p>
                   </div>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2
+                                 transition-colors hover:bg-emerald-50 text-emerald-800 font-semibold"
+                    >
+                      <span className="text-base">📊</span>
+                      Trang quản trị
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2
@@ -221,7 +255,29 @@ export default function NavBar() {
               {label}
             </Link>
           ))}
-          {!user && (
+          {user ? (
+            <>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="px-4 py-3 rounded-xl font-bold text-sm transition-colors text-emerald-800 bg-emerald-50 hover:bg-emerald-100 flex items-center gap-2"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  📊 Trang quản trị
+                </Link>
+              )}
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMobileOpen(false);
+                }}
+                className="mt-2 w-full text-center px-4 py-3 rounded-xl font-bold text-sm text-red-600 bg-red-50 hover:bg-red-100 flex items-center justify-center gap-2"
+              >
+                <SignOut weight="bold" className="w-4 h-4" />
+                Đăng xuất
+              </button>
+            </>
+          ) : (
             <Link
               href="/login"
               className="mt-2 px-4 py-3 rounded-xl font-bold text-center text-sm text-white btn-liquid"

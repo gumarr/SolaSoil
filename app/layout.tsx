@@ -27,7 +27,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${beVietnamPro.variable} antialiased`}>
+      <head>
+        <meta name="color-scheme" content="light dark" />
+      </head>
+      <body className={`${beVietnamPro.variable} antialiased`} suppressHydrationWarning>
         <CartProvider>
           {children}
           <CartDrawer />

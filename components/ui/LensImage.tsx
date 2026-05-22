@@ -66,6 +66,7 @@ export default function LensImage({
               className="w-full h-full object-cover"
               loading="eager"
               style={{ display: "block" }}
+              suppressHydrationWarning
             />
           </picture>
           {/* Subtle vignette */}
@@ -87,14 +88,14 @@ export default function LensImage({
       )}
 
       {/* ── CHILDREN (badge, buttons, etc.) ── */}
-      <div className="relative z-10 w-full h-full">{children}</div>
+      <div className="relative z-30 w-full h-full">{children}</div>
 
       {/* ── LENS ── */}
       {active && (
         <>
           {/* Crosshair dot */}
           <div
-            className="absolute z-30 rounded-full bg-white/70 pointer-events-none"
+            className="absolute z-40 rounded-full bg-white/70 pointer-events-none"
             style={{ left: pos.x - 4, top: pos.y - 4, width: 8, height: 8 }}
           />
 
@@ -127,6 +128,7 @@ export default function LensImage({
                   alt={alt}
                   className="w-full h-full object-cover"
                   style={{ transform: "scale(1.55)", transformOrigin: `${pos.x}px ${pos.y}px` }}
+                  suppressHydrationWarning
                 />
                 {/* Warm tint inside lens */}
                 <div

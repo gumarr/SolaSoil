@@ -10,6 +10,7 @@ export default function QuoteSection({ quoteBg }: { quoteBg?: string }) {
           src={bgUrl}
           alt="Rừng núi Sơn La"
           className="w-full h-full object-cover"
+          suppressHydrationWarning
         />
         <div
           className="absolute inset-0"

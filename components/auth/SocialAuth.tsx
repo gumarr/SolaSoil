@@ -2,19 +2,24 @@
 
 import { createClient } from '@/utils/supabase/client'
 import { useState } from 'react'
-import Image from 'next/image'
 
-export function SocialAuth() {
+export function SocialAuth({ redirectPath }: { redirectPath?: string }) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const supabase = createClient()
 
   const handleLogin = async (provider: 'google' | 'facebook') => {
     setIsLoading(provider)
     try {
+      const redirectToUrl = redirectPath 
+        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectPath)}`
+        : `${window.location.origin}/auth/callback`
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectToUrl,
+          // Hạn chế phạm vi scope về 'public_profile' cho Facebook để tránh lỗi "Invalid Scopes: email"
+          scopes: provider === 'facebook' ? 'public_profile' : undefined,
         },
       })
       if (error) throw error
@@ -84,3 +89,4 @@ export function SocialAuth() {
     </div>
   )
 }
+

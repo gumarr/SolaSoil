@@ -12,9 +12,18 @@ export default async function LoginPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Redirect to home if already logged in
+  // Redirect to home or admin if already logged in
   if (user) {
-    redirect('/')
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    if (profile?.role === 'admin') {
+      redirect('/admin')
+    } else {
+      redirect('/')
+    }
   }
 
   return (

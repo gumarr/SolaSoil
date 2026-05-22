@@ -12,14 +12,31 @@ export async function login(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signInWithPassword(data)
+  const { data: authData, error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
     return { error: error.message }
   }
 
+  let redirectPath = '/'
+  if (authData?.user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', authData.user.id)
+      .single()
+    if (profile?.role === 'admin') {
+      redirectPath = '/admin'
+    } else {
+      const customRedirect = formData.get('redirect') as string
+      if (customRedirect) {
+        redirectPath = customRedirect
+      }
+    }
+  }
+
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect(redirectPath)
 }
 
 export async function signup(formData: FormData) {

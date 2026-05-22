@@ -194,8 +194,7 @@ export default function ProductsSection({
 
                     <div
                       className="absolute inset-x-3 bottom-3 z-10
-                                 opacity-0 translate-y-2
-                                 group-hover:opacity-100 group-hover:translate-y-0
+                                 opacity-100 translate-y-0
                                  transition-all duration-300"
                     >
                       <button

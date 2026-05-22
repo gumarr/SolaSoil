@@ -126,6 +126,7 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
                       src={box.image_url}
                       alt={box.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      suppressHydrationWarning
                     />
                   ) : (
                     <div

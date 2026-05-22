@@ -82,6 +82,7 @@ export default function StorySection({ storyImages }: { storyImages?: StoryImage
                     src={src}
                     alt={label}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    suppressHydrationWarning
                   />
                   <div
                     className="absolute inset-0"

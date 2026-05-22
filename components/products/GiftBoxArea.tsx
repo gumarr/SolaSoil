@@ -145,6 +145,7 @@ export default function GiftBoxArea({
                           src={thumbUrl}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
+                          suppressHydrationWarning
                         />
                       ) : (
                         <div className={`w-full h-full bg-gradient-to-br ${item.product.grad}

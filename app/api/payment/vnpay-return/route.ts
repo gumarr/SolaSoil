@@ -23,13 +23,21 @@ export async function GET(request: Request) {
 
   if (responseCode === '00') {
     // Payment Success
-    await supabase
+    const updateResult = await supabase
       .from('orders')
       .update({ 
         status: 'paid', 
         vnp_transaction_id: transactionNo 
       })
       .eq('id', orderId);
+
+    if (updateResult.error && (updateResult.error.message.includes('vnp_transaction_id') || updateResult.error.message.includes('column'))) {
+      console.warn('Orders table missing vnp_transaction_id column. Retrying status update only.');
+      await supabase
+        .from('orders')
+        .update({ status: 'paid' })
+        .eq('id', orderId);
+    }
 
     return NextResponse.redirect(new URL(`/checkout/success?orderId=${orderId}`, request.url));
   } else {

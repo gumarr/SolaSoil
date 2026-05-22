@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 
 export interface GiftBoxItem {
   productId: number | string;
@@ -26,6 +26,8 @@ export interface CartItem {
   emoji: string;
   grad: string;
   qty: number;
+  image_thumb?: string;
+  image_main?: string;
 }
 
 export type CartElement = CartItem | GiftBox;
@@ -34,6 +36,8 @@ type AddItemPayload = Omit<CartItem, "qty">;
 
 interface CartContextType {
   items: CartElement[];
+  cartItems: CartItem[];
+  giftBoxes: GiftBox[];
   isOpen: boolean;
   count: number;
   total: number;
@@ -41,6 +45,7 @@ interface CartContextType {
   addGiftBox: (giftBox: GiftBox) => void;
   removeItem: (id: number | string) => void;
   updateQty: (id: number | string, qty: number) => void;
+  clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
 }
@@ -49,7 +54,33 @@ const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartElement[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+
+  // Load cart from localStorage once mounted
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("solasoil_cart");
+      if (stored) {
+        setItems(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error("Failed to load cart from localStorage", e);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  // Save cart to localStorage whenever items change
+  useEffect(() => {
+    if (isLoaded) {
+      try {
+        localStorage.setItem("solasoil_cart", JSON.stringify(items));
+      } catch (e) {
+        console.error("Failed to save cart to localStorage", e);
+      }
+    }
+  }, [items, isLoaded]);
 
   const addItem = useCallback((payload: AddItemPayload) => {
     setItems(prev => {
@@ -81,6 +112,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }));
   }, [removeItem]);
 
+  const clearCart = useCallback(() => {
+    setItems([]);
+  }, []);
+
+  const cartItems = items.filter((i): i is CartItem => !('type' in i));
+  const giftBoxes = items.filter((i): i is GiftBox => 'type' in i && i.type === 'gift-box');
+
   const count = items.reduce((sum, i) => {
     if ('qty' in i) return sum + i.qty;
     return sum + i.items.reduce((s, gi) => s + gi.quantity, 0);
@@ -93,8 +131,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider value={{
-      items, isOpen, count, total,
-      addItem, addGiftBox, removeItem, updateQty,
+      items, cartItems, giftBoxes, isOpen, count, total,
+      addItem, addGiftBox, removeItem, updateQty, clearCart,
       openCart: () => setIsOpen(true),
       closeCart: () => setIsOpen(false),
     }}>

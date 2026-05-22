@@ -11,7 +11,10 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     // 1. Create the order
-    const { data: order, error: orderError } = await supabase
+    let order: any = null;
+    let orderError: any = null;
+
+    const fullInsert = await supabase
       .from('orders')
       .insert({
         user_id: user?.id || null,
@@ -24,6 +27,28 @@ export async function POST(request: Request) {
       })
       .select()
       .single();
+
+    if (fullInsert.error && (fullInsert.error.message.includes('full_name') || fullInsert.error.message.includes('column'))) {
+      console.warn('Orders table missing full_name or phone columns. Using address fallback.');
+      const fallbackAddress = `[Người nhận: ${fullName} - SĐT: ${phone}] ${shippingAddress}`;
+      const fallbackInsert = await supabase
+        .from('orders')
+        .insert({
+          user_id: user?.id || null,
+          total_amount: totalAmount,
+          status: 'pending',
+          shipping_address: fallbackAddress,
+          payment_method: paymentMethod,
+        })
+        .select()
+        .single();
+      
+      order = fallbackInsert.data;
+      orderError = fallbackInsert.error;
+    } else {
+      order = fullInsert.data;
+      orderError = fullInsert.error;
+    }
 
     if (orderError) throw orderError;
 

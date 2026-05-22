@@ -84,6 +84,7 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
                       src={cat.image_url}
                       alt={cat.label}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      suppressHydrationWarning
                     />
                   ) : (
                     <div

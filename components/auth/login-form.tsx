@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { login } from '@/app/auth/actions'
@@ -13,6 +13,8 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectParam = searchParams ? searchParams.get('redirect') : null
   const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -23,6 +25,9 @@ export function LoginForm() {
     const formData = new FormData()
     formData.append('email', email)
     formData.append('password', password)
+    if (redirectParam) {
+      formData.append('redirect', redirectParam)
+    }
 
     const result = await login(formData)
 
@@ -107,7 +112,7 @@ export function LoginForm() {
           </div>
         </form>
 
-        <SocialAuth />
+        <SocialAuth redirectPath={redirectParam || undefined} />
 
         <div className="mt-8 text-center">
            <p className="text-sm font-medium text-white/80">

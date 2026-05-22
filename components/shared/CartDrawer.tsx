@@ -138,7 +138,7 @@ export default function CartDrawer() {
                     style={{ background: "rgba(157,196,158,0.12)" }}
                   >
                     {thumbSrc ? (
-                      <img src={thumbSrc} alt={name} className="w-full h-full object-cover" />
+                      <img src={thumbSrc} alt={name} className="w-full h-full object-cover" suppressHydrationWarning />
                     ) : (
                       icon
                     )}

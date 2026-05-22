@@ -45,7 +45,10 @@
 /* ============================================
    BASE STYLES
    ============================================ */
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  color-scheme: light dark;
+}
 
 body {
   background: var(--ivory);

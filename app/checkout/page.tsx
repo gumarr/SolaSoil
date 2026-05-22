@@ -6,12 +6,15 @@ import { useCart } from '@/context/CartContext'
 import NavBar from '@/components/home/NavBar'
 import Footer from '@/components/home/Footer'
 import { createClient } from '@/utils/supabase/client'
+import MapPickerModal from '@/components/checkout/MapPickerModal'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { cartItems, giftBoxes, clearCart } = useCart()
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false)
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -31,16 +34,19 @@ export default function CheckoutPage() {
           fullName: user.user_metadata.full_name || '',
           email: user.email || ''
         }))
+        setAuthLoading(false)
+      } else {
+        router.push('/login?redirect=/checkout')
       }
     })
-  }, [])
+  }, [router])
 
   const allItems = [
     ...cartItems.map(item => ({
       productId: item.id,
       name: item.name,
       price: item.priceNum,
-      quantity: item.quantity,
+      quantity: item.qty,
       image: item.image_thumb || item.image_main
     })),
     ...giftBoxes.map(box => ({
@@ -93,6 +99,15 @@ export default function CheckoutPage() {
     }
   }
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+        <div className="w-12 h-12 border-4 border-green-800 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-600 font-medium">Đang kiểm tra thông tin đăng nhập...</p>
+      </div>
+    )
+  }
+
   if (allItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -141,12 +156,22 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Địa chỉ giao hàng</label>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-semibold text-gray-700">Địa chỉ giao hàng</label>
+                    <button
+                      type="button"
+                      onClick={() => setIsMapModalOpen(true)}
+                      className="text-xs text-green-800 hover:text-green-950 font-bold flex items-center gap-1 hover:underline transition-all"
+                    >
+                      📍 Chọn từ bản đồ (Google Maps)
+                    </button>
+                  </div>
                   <textarea
                     required
                     rows={3}
                     value={formData.shippingAddress}
                     onChange={e => setFormData({...formData, shippingAddress: e.target.value})}
+                    placeholder="Nhập địa chỉ chi tiết hoặc chọn từ bản đồ..."
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
@@ -210,7 +235,7 @@ export default function CheckoutPage() {
                   <div key={idx} className="flex gap-4">
                     <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" suppressHydrationWarning />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
                       )}
@@ -243,6 +268,13 @@ export default function CheckoutPage() {
         </div>
       </div>
       <Footer />
+
+      <MapPickerModal
+        isOpen={isMapModalOpen}
+        onClose={() => setIsMapModalOpen(false)}
+        onConfirm={(addr) => setFormData(prev => ({ ...prev, shippingAddress: addr }))}
+        initialAddress={formData.shippingAddress}
+      />
     </div>
   )
 }
