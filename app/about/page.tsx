@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight } from "@phosphor-icons/react";
 import AnnouncementBar from "@/components/home/AnnouncementBar";
 import NavBar from "@/components/home/NavBar";
 import Footer from "@/components/home/Footer";
@@ -198,9 +199,7 @@ export default function AboutPage() {
               className="inline-flex items-center justify-center gap-2 bg-white text-green-900 font-bold px-8 py-3.5 rounded-full hover:bg-green-50 transition-all hover:shadow-lg hover:-translate-y-0.5 text-sm"
             >
               Xem Sản Phẩm
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-              </svg>
+              <ArrowRight weight="bold" className="w-4 h-4" />
             </Link>
             <Link
               href="/#contact"

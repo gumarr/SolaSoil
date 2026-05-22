@@ -1,21 +1,21 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma schema - khớp hoàn toàn với Supabase SQL schema
+// Chạy: npx prisma db push && npx prisma db seed
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
-// 1. BẢNG DANH MỤC (Categories)
+// ── Bảng categories ──────────────────────────────────────
 model Category {
   id          String    @id @default(uuid()) @db.Uuid
   name        String
-  slug        String    @unique
+  icon        String?
   description String?
-  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz
+  created_at  DateTime? @default(now()) @db.Timestamptz
 
   // Relations
   products Product[]
@@ -23,108 +23,108 @@ model Category {
   @@map("categories")
 }
 
-// 2. BẢNG SẢN PHẨM OCOP (Products)
+// ── Bảng products ────────────────────────────────────────
 model Product {
-  id                 String    @id @default(uuid()) @db.Uuid
-  categoryId         String?   @map("category_id") @db.Uuid
-  name               String
-  description        String?
-  price              Decimal   @db.Decimal
-  stockQuantity      Int?      @default(0) @map("stock_quantity")
-  imageUrl           String?   @map("image_url")
-  certificationLevel String?   @map("certification_level")
-  originStory        String?   @map("origin_story")
-  isActive           Boolean?  @default(true) @map("is_active")
-  createdAt          DateTime? @default(now()) @map("created_at") @db.Timestamptz
+  id             String    @id @default(uuid()) @db.Uuid
+  category_id    String?   @db.Uuid
+  name           String
+  description    String?
+  price          Decimal   @db.Decimal
+  weight         String?
+  stock_quantity Int?      @default(0)
+  images         String[]
+  ocop_stars     Int?
+  origin         String?   @default("Sơn La")
+  is_active      Boolean?  @default(true)
+  created_at     DateTime? @default(now()) @db.Timestamptz
 
   // Relations
-  category   Category?   @relation(fields: [categoryId], references: [id])
-  comboItems ComboItem[]
-  reviews    Review[]
+  category   Category?   @relation(fields: [category_id], references: [id])
+  order_items OrderItem[]
+  combo_items ComboItem[]
 
   @@map("products")
 }
 
-// 3. BẢNG NGƯỜI DÙNG & ADMIN (Profiles)
-// Đồng bộ với Auth.users của Supabase
-model Profile {
-  id            String    @id @db.Uuid // Gắn với auth.users(id) của Supabase, không tự gen
-  fullName      String?   @map("full_name")
-  phoneNumber   String?   @map("phone_number")
-  address       String?
-  avatarUrl     String?   @map("avatar_url")
-  role          String?   @default("customer") // Phân quyền Admin
-  loyaltyPoints Int?      @default(0) @map("loyalty_points")
-  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamptz
+// ── Bảng users ───────────────────────────────────────────
+model User {
+  id         String    @id @default(uuid()) @db.Uuid
+  full_name  String?
+  email      String?   @unique
+  phone      String?
+  address    String?
+  role       String?   @default("customer")
+  created_at DateTime? @default(now()) @db.Timestamptz
 
   // Relations
-  orders  Order[]
-  reviews Review[]
+  orders Order[]
 
-  @@map("profiles")
+  @@map("users")
 }
 
-// 4. BẢNG COMBO QUÀ TẶNG CỐ ĐỊNH (Gift Combos)
-model GiftCombo {
-  id          String    @id @default(uuid()) @db.Uuid
-  name        String
-  description String?
-  basePrice   Decimal   @map("base_price") @db.Decimal
-  imageUrl    String?   @map("image_url")
-  comboType   String?   @default("standard") @map("combo_type")
-  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz
+// ── Bảng combos ──────────────────────────────────────────
+model Combo {
+  id             String    @id @default(uuid()) @db.Uuid
+  name           String
+  description    String?
+  base_price     Decimal?  @default(0) @db.Decimal
+  total_price    Decimal   @db.Decimal
+  is_customizable Boolean? @default(false)
+  created_at     DateTime? @default(now()) @db.Timestamptz
 
   // Relations
-  items ComboItem[]
+  combo_items ComboItem[]
+  order_items OrderItem[]
 
-  @@map("gift_combos")
+  @@map("combos")
 }
 
-// 5. CHI TIẾT SẢN PHẨM TRONG COMBO (Combo Items)
+// ── Bảng combo_items ─────────────────────────────────────
 model ComboItem {
-  id        String  @id @default(uuid()) @db.Uuid
-  comboId   String? @map("combo_id") @db.Uuid
-  productId String? @map("product_id") @db.Uuid
-  quantity  Int?    @default(1)
+  combo_id   String  @db.Uuid
+  product_id String  @db.Uuid
+  quantity   Int?    @default(1)
 
   // Relations
-  combo   GiftCombo? @relation(fields: [comboId], references: [id], onDelete: Cascade)
-  product Product?   @relation(fields: [productId], references: [id])
+  combo   Combo   @relation(fields: [combo_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
 
+  @@id([combo_id, product_id])
   @@map("combo_items")
 }
 
-// 6. BẢNG ĐƠN HÀNG (Orders)
+// ── Bảng orders ──────────────────────────────────────────
 model Order {
-  id              String    @id @default(uuid()) @db.Uuid
-  userId          String?   @map("user_id") @db.Uuid
-  totalAmount     Decimal   @map("total_amount") @db.Decimal
-  status          String?   @default("pending") // pending, processing, shipped, cancelled
-  shippingAddress String    @map("shipping_address")
-  paymentMethod   String?   @map("payment_method")
-  notes           String?
-  customComboData Json?     @map("custom_combo_data") @db.JsonB
-  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamptz
+  id               String    @id @default(uuid()) @db.Uuid
+  user_id          String?   @db.Uuid
+  total_amount     Decimal   @db.Decimal
+  status           String?   @default("pending")
+  shipping_address String
+  payment_method   String?
+  full_name        String?
+  phone            String?
+  created_at       DateTime? @default(now()) @db.Timestamptz
 
   // Relations
-  user Profile? @relation(fields: [userId], references: [id])
+  user        User?       @relation(fields: [user_id], references: [id])
+  order_items OrderItem[]
 
   @@map("orders")
 }
 
-// 7. BẢNG ĐÁNH GIÁ (Reviews)
-model Review {
-  id         String    @id @default(uuid()) @db.Uuid
-  productId  String?   @map("product_id") @db.Uuid
-  userId     String?   @map("user_id") @db.Uuid
-  rating     Int?
-  comment    String?
-  isVerified Boolean?  @default(false) @map("is_verified")
-  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz
+// ── Bảng order_items ─────────────────────────────────────
+model OrderItem {
+  id                String   @id @default(uuid()) @db.Uuid
+  order_id          String?  @db.Uuid
+  product_id        String?  @db.Uuid
+  combo_id          String?  @db.Uuid
+  quantity          Int
+  price_at_purchase Decimal  @db.Decimal
 
   // Relations
-  product Product? @relation(fields: [productId], references: [id])
-  user    Profile? @relation(fields: [userId], references: [id])
+  order   Order?   @relation(fields: [order_id], references: [id])
+  product Product? @relation(fields: [product_id], references: [id])
+  combo   Combo?   @relation(fields: [combo_id], references: [id])
 
-  @@map("reviews")
+  @@map("order_items")
 }

@@ -1,7 +1,18 @@
 "use client";
 
 import { useInView } from "@/hooks/useInView";
-import { STORY_IMAGES } from "@/lib/imageConfig";
+
+interface StoryImage {
+  src: string;
+  label: string;
+}
+
+const DEFAULT_STORY_IMAGES: StoryImage[] = [
+  { src: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop&q=85', label: 'Núi rừng Sơn La' },
+  { src: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&q=85', label: 'Thịt Gác Bếp' },
+  { src: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=300&fit=crop&q=85', label: 'Vườn Trà Shan Tuyết' },
+  { src: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=300&fit=crop&q=85', label: 'Nông dân bản địa' },
+];
 
 const CARDS = [
   { title: "Hợp Tác Trực Tiếp",  desc: "Làm việc trực tiếp với 50+ hộ nông dân tại Sơn La — không qua trung gian." },
@@ -10,8 +21,9 @@ const CARDS = [
   { title: "Hộp Quà Sơn La",     desc: "Bộ quà tặng đặc sản thiết kế riêng — quà Tết, quà công ty, quà biếu." },
 ];
 
-export default function StorySection() {
+export default function StorySection({ storyImages }: { storyImages?: StoryImage[] }) {
   const [ref, inView] = useInView(0.05);
+  const images = storyImages || DEFAULT_STORY_IMAGES;
 
   return (
     <section id="story" className="py-24 relative overflow-hidden" style={{ background: "#f4f7f4" }}>
@@ -60,7 +72,7 @@ export default function StorySection() {
 
             {/* 2×2 image grid — ảnh từ imageConfig */}
             <div className="grid grid-cols-2 gap-3">
-              {STORY_IMAGES.map(({ src, label }) => (
+              {images.map(({ src, label }) => (
                 <div
                   key={label}
                   className="relative rounded-2xl overflow-hidden group"
@@ -70,6 +82,7 @@ export default function StorySection() {
                     src={src}
                     alt={label}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    suppressHydrationWarning
                   />
                   <div
                     className="absolute inset-0"

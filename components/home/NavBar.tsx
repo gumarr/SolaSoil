@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase/client";
+import { signOut } from "@/app/auth/actions";
 import type { User } from "@supabase/supabase-js";
+import { ShoppingBag, User as UserIcon, SignOut, List, X } from "@phosphor-icons/react";
 
 const NAV_LINKS = [
   ["/products",        "Sản Phẩm"],
@@ -18,21 +20,43 @@ export default function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { count, openCart } = useCart();
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) =>
-      setUser(session?.user ?? null)
-    );
+    const checkAdmin = async (userId: string) => {
+      try {
+        const { data } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', userId)
+          .single();
+        setIsAdmin(data?.role === 'admin');
+      } catch (err) {
+        setIsAdmin(false);
+      }
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) checkAdmin(u.id);
+      else setIsAdmin(false);
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_e, session) => setUser(session?.user ?? null)
+      (_e, session) => {
+        const u = session?.user ?? null;
+        setUser(u);
+        if (u) checkAdmin(u.id);
+        else setIsAdmin(false);
+      }
     );
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    await signOut();
   };
 
   return (
@@ -62,6 +86,7 @@ export default function NavBar() {
               src="/Logo.jpg"
               alt="Mộc Sơn Logo"
               className="w-full h-full object-cover"
+              suppressHydrationWarning
             />
           </div>
           <div>
@@ -104,11 +129,7 @@ export default function NavBar() {
                        hover:bg-[rgba(47,86,50,0.07)]"
             style={{ border: "1px solid rgba(201,222,202,0.35)", color: "#2f5632" }}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4L7 13zm0 0-1.4 7h12.8M9 21a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-            </svg>
+            <ShoppingBag weight="bold" className="w-5 h-5" />
             {count > 0 && (
               <span
                 className="absolute -top-1 -right-1 w-5 h-5 rounded-full
@@ -128,10 +149,7 @@ export default function NavBar() {
                            transition-all duration-200 hover:bg-[rgba(47,86,50,0.07)]"
                 style={{ border: "1px solid rgba(201,222,202,0.35)", color: "#2f5632" }}
               >
-                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                <UserIcon weight="bold" className="w-4 h-4 shrink-0" />
                 <span className="max-w-[90px] truncate hidden lg:block">
                   {user.user_metadata?.full_name || user.email}
                 </span>
@@ -156,16 +174,23 @@ export default function NavBar() {
                       {user.email}
                     </p>
                   </div>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2
+                                 transition-colors hover:bg-emerald-50 text-emerald-800 font-semibold"
+                    >
+                      <span className="text-base">📊</span>
+                      Trang quản trị
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2
                                transition-colors hover:bg-red-50"
                     style={{ color: "#ef4444" }}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
+                    <SignOut weight="bold" className="w-4 h-4" />
                     Đăng xuất
                   </button>
                 </div>
@@ -204,11 +229,7 @@ export default function NavBar() {
             style={{ border: "1px solid rgba(201,222,202,0.35)", color: "#2f5632" }}
             onClick={() => setMobileOpen(v => !v)}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d={mobileOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-            </svg>
+            {mobileOpen ? <X weight="bold" className="w-5 h-5" /> : <List weight="bold" className="w-5 h-5" />}
           </button>
         </div>
       </div>
@@ -234,7 +255,29 @@ export default function NavBar() {
               {label}
             </Link>
           ))}
-          {!user && (
+          {user ? (
+            <>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="px-4 py-3 rounded-xl font-bold text-sm transition-colors text-emerald-800 bg-emerald-50 hover:bg-emerald-100 flex items-center gap-2"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  📊 Trang quản trị
+                </Link>
+              )}
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMobileOpen(false);
+                }}
+                className="mt-2 w-full text-center px-4 py-3 rounded-xl font-bold text-sm text-red-600 bg-red-50 hover:bg-red-100 flex items-center justify-center gap-2"
+              >
+                <SignOut weight="bold" className="w-4 h-4" />
+                Đăng xuất
+              </button>
+            </>
+          ) : (
             <Link
               href="/login"
               className="mt-2 px-4 py-3 rounded-xl font-bold text-center text-sm text-white btn-liquid"

@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Mộc Sơn — Đặc Sản Sơn La Thuần Khiết",
   description:
     "Mộc Sơn — Nền tảng đặc sản Sơn La uy tín: thịt gác bếp, trà shan tuyết, mật ong rừng, mắc khén, hạt dổi, mận hậu, na sầu riêng và dâu tây Mộc Châu.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({
@@ -23,8 +26,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi">
-      <body className={`${beVietnamPro.variable} antialiased`}>
+    <html lang="vi" suppressHydrationWarning>
+      <head>
+        <meta name="color-scheme" content="light dark" />
+      </head>
+      <body className={`${beVietnamPro.variable} antialiased`} suppressHydrationWarning>
         <CartProvider>
           {children}
           <CartDrawer />

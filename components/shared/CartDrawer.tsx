@@ -9,10 +9,17 @@ import {
   getGiftBoxSummary,
   getQuantity,
 } from "@/lib/cartUtils";
-import { PRODUCT_IMAGES } from "@/lib/imageConfig";
+
+import { useRouter } from "next/navigation";
 
 export default function CartDrawer() {
   const { items, isOpen, count, total, removeItem, updateQty, closeCart } = useCart();
+  const router = useRouter();
+
+  const handleCheckout = () => {
+    closeCart();
+    router.push("/checkout");
+  };
 
   return (
     <>
@@ -112,10 +119,8 @@ export default function CartDrawer() {
               const name     = getDisplayName(item);
               const qty      = getQuantity(item);
               const price    = getPriceDisplay(item);
-              // Thumbnail: real photo from config, else emoji fallback
-              const thumbSrc = !isBox && "id" in item
-                ? PRODUCT_IMAGES[item.id as number]?.thumb
-                : null;
+              // Thumbnail: no longer from PRODUCT_IMAGES, just use emoji icon
+              const thumbSrc = null;
 
               return (
                 <div
@@ -133,7 +138,7 @@ export default function CartDrawer() {
                     style={{ background: "rgba(157,196,158,0.12)" }}
                   >
                     {thumbSrc ? (
-                      <img src={thumbSrc} alt={name} className="w-full h-full object-cover" />
+                      <img src={thumbSrc} alt={name} className="w-full h-full object-cover" suppressHydrationWarning />
                     ) : (
                       icon
                     )}
@@ -254,6 +259,7 @@ export default function CartDrawer() {
             </div>
 
             <button
+              onClick={handleCheckout}
               className="w-full py-4 rounded-2xl font-bold text-sm text-white btn-liquid"
               style={{
                 background: "linear-gradient(135deg, #2f5632, #4d8550)",

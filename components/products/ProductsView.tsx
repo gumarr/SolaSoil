@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { PRODUCTS, CATEGORY_TABS } from "@/lib/data";
+import type { Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import AnnouncementBar from "@/components/home/AnnouncementBar";
 import NavBar from "@/components/home/NavBar";
 import Footer from "@/components/home/Footer";
 import LensImage from "@/components/ui/LensImage";
-import { PRODUCT_IMAGES } from "@/lib/imageConfig";
 
 const SORT_OPTIONS = [
   { value: "featured",   label: "Nổi bật" },
@@ -18,7 +17,12 @@ const SORT_OPTIONS = [
   { value: "name-asc",   label: "Tên: A → Z" },
 ];
 
-export default function ProductsView() {
+interface ProductsViewProps {
+  products: Product[];
+  categoryTabs: { id: string; label: string; icon: string }[];
+}
+
+export default function ProductsView({ products, categoryTabs }: ProductsViewProps) {
   const searchParams  = useSearchParams();
   const initialCat    = searchParams.get("cat") ?? "all";
 
@@ -28,7 +32,7 @@ export default function ProductsView() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const { addItem } = useCart();
 
-  let filtered = PRODUCTS
+  let filtered = products
     .filter(p => activeCategory === "all" || p.categoryId === activeCategory)
     .filter(p =>
       !search ||
@@ -82,10 +86,10 @@ export default function ProductsView() {
           Danh Mục
         </p>
         <div className="space-y-0.5">
-          {CATEGORY_TABS.map(tab => {
+          {categoryTabs.map(tab => {
             const cnt = tab.id === "all"
-              ? PRODUCTS.length
-              : PRODUCTS.filter(p => p.categoryId === tab.id).length;
+              ? products.length
+              : products.filter(p => p.categoryId === tab.id).length;
             const active = activeCategory === tab.id;
             return (
               <button
@@ -245,7 +249,7 @@ export default function ProductsView() {
                   <span className="ml-1">
                     trong{" "}
                     <span className="font-semibold" style={{ color: "#2f5632" }}>
-                      {CATEGORY_TABS.find(t => t.id === activeCategory)?.label}
+                      {categoryTabs.find(t => t.id === activeCategory)?.label}
                     </span>
                   </span>
                 )}
@@ -297,10 +301,9 @@ export default function ProductsView() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map(p => {
-                  const imgs = PRODUCT_IMAGES[p.id];
                   return (
                     <div
-                      key={p.id}
+                      key={String(p.id)}
                       className="group rounded-2xl overflow-hidden flex flex-col card-hover"
                       style={{
                         background: "#ffffff",
@@ -311,8 +314,8 @@ export default function ProductsView() {
                       {/* LensImage */}
                       <div className="h-52 shrink-0">
                         <LensImage
-                          mainImage={imgs?.main}
-                          revealImage={imgs?.reveal}
+                          mainImage={p.image_main}
+                          revealImage={p.image_reveal || p.image_main}
                           baseGrad={p.grad}
                           revealGrad={p.revealGrad}
                           emoji={p.emoji}
