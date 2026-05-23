@@ -6,6 +6,7 @@ import { type Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import LensImage from "@/components/ui/LensImage";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 interface Category {
   id: string;
@@ -165,63 +166,65 @@ export default function ProductsSection({
                   boxShadow: "0 2px 12px rgba(47,86,50,0.06)",
                 }}
               >
-                <div className="h-52">
-                  <LensImage
-                    mainImage={p.image_main}
-                    revealImage={p.image_reveal || p.image_main}
-                    baseGrad={p.grad}
-                    revealGrad={p.revealGrad}
-                    emoji={p.emoji}
-                    revealEmoji={p.revealEmoji}
-                    lensSize={130}
-                    alt={p.name}
-                    className="w-full h-full"
-                  >
-                    {p.badge && (
-                      <div className="relative z-10 p-3">
-                        <span
-                          className="px-2.5 py-1 rounded-full text-[10px] font-bold"
-                          style={{
-                            background: "rgba(250,248,244,0.92)",
-                            color: "#9a6420",
-                            backdropFilter: "blur(8px)",
-                          }}
-                        >
-                          {p.badge}
-                        </span>
-                      </div>
-                    )}
-
-                    <div
-                      className="absolute inset-x-3 bottom-3 z-10
-                                 opacity-100 translate-y-0
-                                 transition-all duration-300"
+                <div className="h-52 relative overflow-hidden">
+                  <Link href={`/products/${p.id}`} className="block w-full h-full">
+                    <LensImage
+                      mainImage={p.image_main}
+                      revealImage={p.image_reveal || p.image_main}
+                      baseGrad={p.grad}
+                      revealGrad={p.revealGrad}
+                      emoji={p.emoji}
+                      revealEmoji={p.revealEmoji}
+                      lensSize={130}
+                      alt={p.name}
+                      className="w-full h-full"
                     >
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addItem({
-                            id: p.id,
-                            name: p.name,
-                            priceNum: p.priceNum,
-                            priceLabel: p.price,
-                            weight: p.weight,
-                            emoji: p.emoji,
-                            grad: p.grad,
-                          });
-                        }}
-                        className="w-full py-2.5 rounded-xl text-xs font-bold btn-liquid"
-                        style={{
-                          background: "rgba(250,248,244,0.95)",
-                          color: "#2f5632",
-                          backdropFilter: "blur(12px)",
-                          boxShadow: "0 4px 16px rgba(0,0,0,0.20)",
-                        }}
-                      >
-                        + Thêm vào giỏ
-                      </button>
-                    </div>
-                  </LensImage>
+                      {p.badge && (
+                        <div className="relative z-10 p-3">
+                          <span
+                            className="px-2.5 py-1 rounded-full text-[10px] font-bold"
+                            style={{
+                              background: "rgba(250,248,244,0.92)",
+                              color: "#9a6420",
+                              backdropFilter: "blur(8px)",
+                            }}
+                          >
+                            {p.badge}
+                          </span>
+                        </div>
+                      )}
+                    </LensImage>
+                  </Link>
+
+                  <div
+                    className="absolute inset-x-3 bottom-3 z-30
+                               opacity-100 translate-y-0
+                               transition-all duration-300"
+                  >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addItem({
+                          id: p.id,
+                          name: p.name,
+                          priceNum: p.priceNum,
+                          priceLabel: p.price,
+                          weight: p.weight,
+                          emoji: p.emoji,
+                          grad: p.grad,
+                        });
+                      }}
+                      className="w-full py-2.5 rounded-xl text-xs font-bold btn-liquid cursor-pointer"
+                      style={{
+                        background: "rgba(250,248,244,0.95)",
+                        color: "#2f5632",
+                        backdropFilter: "blur(12px)",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.20)",
+                      }}
+                    >
+                      + Thêm vào giỏ
+                    </button>
+                  </div>
                 </div>
 
                 <div className="p-4">
@@ -232,10 +235,10 @@ export default function ProductsSection({
                     {p.category}
                   </div>
                   <h3
-                    className="font-bold text-sm mb-1 leading-snug"
+                    className="font-bold text-sm mb-1 leading-snug hover:text-emerald-700 transition-colors"
                     style={{ color: "#1a2e1b" }}
                   >
-                    {p.name}
+                    <Link href={`/products/${p.id}`}>{p.name}</Link>
                   </h3>
                   <p
                     className="text-xs leading-relaxed line-clamp-2 mb-3"

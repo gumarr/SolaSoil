@@ -51,6 +51,10 @@ CREATE TABLE public.products (
   grad           varchar DEFAULT 'from-stone-800 via-stone-700 to-amber-900',
   reveal_grad    varchar DEFAULT 'from-orange-700 via-red-700 to-rose-800',
   badge          varchar,
+  detail_story   text,
+  ingredients    text,
+  usage_instructions text,
+  benefits       text,
   created_at     timestamptz DEFAULT now()
 );
 
