@@ -312,7 +312,7 @@ export default function ProductsView({ products, categoryTabs }: ProductsViewPro
                       }}
                     >
                       {/* LensImage */}
-                      <div className="h-52 shrink-0">
+                      <Link href={`/products/${p.id}`} className="h-52 shrink-0 block overflow-hidden">
                         <LensImage
                           mainImage={p.image_main}
                           revealImage={p.image_reveal || p.image_main}
@@ -339,7 +339,7 @@ export default function ProductsView({ products, categoryTabs }: ProductsViewPro
                             </div>
                           )}
                         </LensImage>
-                      </div>
+                      </Link>
 
                       {/* Info */}
                       <div className="p-5 flex flex-col flex-1">
@@ -350,10 +350,10 @@ export default function ProductsView({ products, categoryTabs }: ProductsViewPro
                           {p.category}
                         </span>
                         <h3
-                          className="font-bold text-base mb-1.5 leading-snug"
+                          className="font-bold text-base mb-1.5 leading-snug hover:text-emerald-700 transition-colors"
                           style={{ color: "#1a2e1b" }}
                         >
-                          {p.name}
+                          <Link href={`/products/${p.id}`}>{p.name}</Link>
                         </h3>
                         <p
                           className="text-sm leading-relaxed line-clamp-2 flex-1"

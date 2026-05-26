@@ -192,6 +192,15 @@ export default function ProductsClient({ products, categories }: { products: any
         <AdminInput label="Ảnh chính (URL)" name="image_main" defaultValue={editing?.image_main} placeholder="https://..." />
         <AdminInput label="Ảnh reveal (URL)" name="image_reveal" defaultValue={editing?.image_reveal} />
         <AdminInput label="Ảnh thumb (URL)" name="image_thumb" defaultValue={editing?.image_thumb} />
+        
+        {/* Các trường thông tin chi tiết */}
+        <AdminInput label="Câu chuyện sản phẩm (Chi tiết)" name="detail_story" defaultValue={editing?.detail_story} rows={3} placeholder="Câu chuyện nguồn gốc, quy trình sản xuất..." />
+        <AdminInput label="Thành phần" name="ingredients" defaultValue={editing?.ingredients} rows={2} placeholder="Thành phần tự nhiên của sản phẩm..." />
+        <div className="grid grid-cols-2 gap-4">
+          <AdminInput label="Hướng dẫn sử dụng" name="usage_instructions" defaultValue={editing?.usage_instructions} rows={2} placeholder="Cách chế biến, thưởng thức..." />
+          <AdminInput label="Lợi ích sức khỏe / Công dụng" name="benefits" defaultValue={editing?.benefits} rows={2} placeholder="Lợi ích dinh dưỡng, sức khỏe..." />
+        </div>
+
         <AdminInput label="Gradient" name="grad" defaultValue={editing?.grad} placeholder="from-stone-800 via-stone-700 to-amber-900" />
         <AdminInput label="Reveal Gradient" name="reveal_grad" defaultValue={editing?.reveal_grad} />
         <AdminInput label="Reveal Emoji" name="reveal_emoji" defaultValue={editing?.reveal_emoji} />

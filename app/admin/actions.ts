@@ -45,6 +45,10 @@ export async function createProduct(formData: FormData) {
     image_reveal: formData.get('image_reveal') as string || null,
     image_thumb: formData.get('image_thumb') as string || null,
     stock_quantity: Number(formData.get('stock_quantity')) || 0,
+    detail_story: formData.get('detail_story') as string || null,
+    ingredients: formData.get('ingredients') as string || null,
+    usage_instructions: formData.get('usage_instructions') as string || null,
+    benefits: formData.get('benefits') as string || null,
   })
 
   if (error) return { error: error.message }
@@ -71,6 +75,10 @@ export async function updateProduct(id: string, formData: FormData) {
     image_thumb: formData.get('image_thumb') as string || null,
     stock_quantity: Number(formData.get('stock_quantity')) || 0,
     is_active: formData.get('is_active') === 'true',
+    detail_story: formData.get('detail_story') as string || null,
+    ingredients: formData.get('ingredients') as string || null,
+    usage_instructions: formData.get('usage_instructions') as string || null,
+    benefits: formData.get('benefits') as string || null,
   }).eq('id', id)
 
   if (error) return { error: error.message }

@@ -41,7 +41,7 @@ interface CartContextType {
   isOpen: boolean;
   count: number;
   total: number;
-  addItem: (payload: AddItemPayload) => void;
+  addItem: (payload: AddItemPayload, quantity?: number) => void;
   addGiftBox: (giftBox: GiftBox) => void;
   removeItem: (id: number | string) => void;
   updateQty: (id: number | string, qty: number) => void;
@@ -82,13 +82,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, isLoaded]);
 
-  const addItem = useCallback((payload: AddItemPayload) => {
+  const addItem = useCallback((payload: AddItemPayload, quantity: number = 1) => {
     setItems(prev => {
       const existing = prev.find(i => 'qty' in i && i.id === payload.id);
       if (existing && 'qty' in existing) {
-        return prev.map(i => 'qty' in i && i.id === payload.id ? { ...i, qty: i.qty + 1 } : i);
+        return prev.map(i => 'qty' in i && i.id === payload.id ? { ...i, qty: i.qty + quantity } : i);
       }
-      return [...prev, { ...payload, qty: 1 }];
+      return [...prev, { ...payload, qty: quantity }];
     });
     setIsOpen(true);
   }, []);
