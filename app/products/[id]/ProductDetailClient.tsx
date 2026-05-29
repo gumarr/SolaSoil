@@ -50,6 +50,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
       weight: product.weight,
       emoji: product.emoji,
       grad: product.grad,
+      image_thumb: product.image_thumb,
+      image_main: product.image_main,
     }, quantity);
   };
 
@@ -318,6 +320,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                             weight: p.weight,
                             emoji: p.emoji,
                             grad: p.grad,
+                            image_thumb: p.image_thumb,
+                            image_main: p.image_main,
                           });
                         }}
                         className="w-full py-2 rounded-lg text-[10px] font-bold btn-liquid cursor-pointer"
