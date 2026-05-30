@@ -380,6 +380,8 @@ export default function ProductsView({ products, categoryTabs }: ProductsViewPro
                                 id: p.id, name: p.name, priceNum: p.priceNum,
                                 priceLabel: p.price, weight: p.weight,
                                 emoji: p.emoji, grad: p.grad,
+                                image_thumb: p.image_thumb,
+                                image_main: p.image_main,
                               })
                             }
                             className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-white btn-liquid"

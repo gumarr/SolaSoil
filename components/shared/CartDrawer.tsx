@@ -1,20 +1,215 @@
 "use client";
 
+import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import type { GiftBox } from "@/context/CartContext";
 import {
   isGiftBox,
   getDisplayName,
   getDisplayIcon,
   getPriceDisplay,
   getGiftBoxSummary,
+  getGiftBoxProductsInfo,
   getQuantity,
+  formatPrice,
 } from "@/lib/cartUtils";
 
 import { useRouter } from "next/navigation";
 
+// Map style id → preview image path
+const STYLE_IMAGES: Record<string, string> = {
+  "moc-mac":    "/gift-box-styles/moc-mac.png",
+  "sang-trong": "/gift-box-styles/sang-trong.png",
+  "don-gian":   "/gift-box-styles/don-gian.png",
+  "thanh-lich": "/gift-box-styles/thanh-lich.png",
+};
+
+const STYLE_LABELS: Record<string, string> = {
+  "moc-mac":    "Mộc mạc",
+  "sang-trong": "Sang trọng",
+  "don-gian":   "Đơn giản",
+  "thanh-lich": "Thanh lịch",
+};
+
+// ── GiftBox Detail Popup ──────────────────────────────────────────────────────
+function GiftBoxDetailPopup({
+  giftBox,
+  onClose,
+}: {
+  giftBox: GiftBox;
+  onClose: () => void;
+}) {
+  const products = getGiftBoxProductsInfo(giftBox);
+  const totalQty = giftBox.items.reduce((s, i) => s + i.quantity, 0);
+  const isDiscounted = totalQty >= 5;
+  const styleLabel = giftBox.style ? (STYLE_LABELS[giftBox.style] ?? giftBox.style) : null;
+  const styleImage = giftBox.style ? STYLE_IMAGES[giftBox.style] : null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={{ background: "rgba(14,26,15,0.72)", backdropFilter: "blur(6px)" }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-sm rounded-3xl overflow-hidden"
+        style={{
+          background: "rgba(250,248,244,0.98)",
+          boxShadow: "0 32px 80px rgba(14,26,15,0.35)",
+          border: "1px solid rgba(201,222,202,0.25)",
+          maxHeight: "90vh",
+          overflowY: "auto",
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-3.5 right-3.5 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+          style={{ background: "rgba(47,86,50,0.10)", color: "#2f5632" }}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* Style preview image */}
+        {styleImage && (
+          <div className="relative overflow-hidden" style={{ height: 160 }}>
+            <img src={styleImage} alt={styleLabel ?? "Phong cách"} className="w-full h-full object-cover" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.60) 0%, transparent 55%)" }} />
+            <div className="absolute bottom-0 inset-x-0 p-3 flex items-center gap-2">
+              <span className="text-lg">🎁</span>
+              <div>
+                <p className="text-white font-bold text-sm leading-none">Gói Quà Của Bạn</p>
+                {styleLabel && (
+                  <p className="text-white/75 text-[11px] mt-0.5">Phong cách: {styleLabel}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="p-5">
+          {/* Header (khi không có ảnh style) */}
+          {!styleImage && (
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                style={{ background: "rgba(157,196,158,0.15)" }}>🎁</div>
+              <div>
+                <p className="font-bold text-sm" style={{ color: "#1a2e1b" }}>Gói Quà Của Bạn</p>
+                {styleLabel && <p className="text-[11px]" style={{ color: "#6fa470" }}>Phong cách: {styleLabel}</p>}
+              </div>
+            </div>
+          )}
+
+          {/* Divider */}
+          <div className="h-px mb-4" style={{ background: "rgba(201,222,202,0.30)" }} />
+
+          {/* Product list */}
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{ color: "#9dc49e" }}>
+            Danh sách sản phẩm
+          </p>
+          <div className="space-y-2 mb-4">
+            {products.map((p, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5"
+                style={{ background: "rgba(157,196,158,0.08)", border: "1px solid rgba(201,222,202,0.20)" }}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="text-lg shrink-0">{p.emoji}</span>
+                  <p className="text-xs font-semibold truncate" style={{ color: "#1a2e1b" }}>{p.name}</p>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    style={{ background: "rgba(47,86,50,0.10)", color: "#2f5632" }}
+                  >
+                    ×{p.quantity}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="h-px mb-4" style={{ background: "rgba(201,222,202,0.30)" }} />
+
+          {/* Discount badge */}
+          <div className="mb-3">
+            {isDiscounted ? (
+              <div
+                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold"
+                style={{
+                  background: "rgba(34,197,94,0.10)",
+                  border: "1px solid rgba(34,197,94,0.25)",
+                  color: "#15803d",
+                }}
+              >
+                <span className="text-base">🎉</span>
+                <span>Đã áp dụng <strong>giảm 10%</strong> (mua ≥5 sản phẩm)</span>
+              </div>
+            ) : (
+              <div
+                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs"
+                style={{
+                  background: "rgba(157,196,158,0.08)",
+                  border: "1px solid rgba(201,222,202,0.25)",
+                  color: "#6fa470",
+                }}
+              >
+                <span className="text-base">💡</span>
+                <span>Thêm <strong>{5 - totalQty} sản phẩm</strong> nữa để được giảm 10%</span>
+              </div>
+            )}
+          </div>
+
+          {/* Price summary */}
+          <div
+            className="rounded-xl p-3 space-y-1.5"
+            style={{ background: "rgba(157,196,158,0.07)", border: "1px solid rgba(201,222,202,0.20)" }}
+          >
+            <div className="flex items-center justify-between text-xs">
+              <span style={{ color: "#4d8550" }}>Số mục</span>
+              <span className="font-semibold" style={{ color: "#1a2e1b" }}>{totalQty}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span style={{ color: "#4d8550" }}>Tổng cộng</span>
+              <span className="font-bold text-sm" style={{ color: "#d4922b" }}>
+                {formatPrice(giftBox.totalPrice)}
+              </span>
+            </div>
+            {isDiscounted && (
+              <div className="flex items-center justify-between text-[10px]">
+                <span style={{ color: "#6fa470" }}>Đã bao gồm giảm giá 10%</span>
+                <span style={{ color: "#22c55e" }}>✓</span>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={onClose}
+            className="w-full mt-4 py-3 rounded-2xl font-bold text-sm text-white"
+            style={{
+              background: "linear-gradient(135deg, #2f5632, #4d8550)",
+              boxShadow: "0 4px 16px rgba(47,86,50,0.25)",
+            }}
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── CartDrawer ────────────────────────────────────────────────────────────────
 export default function CartDrawer() {
-  const { items, isOpen, count, total, removeItem, updateQty, closeCart } = useCart();
+  const { items, isOpen, count, total, removeItem, updateQty, closeCart } =
+    useCart();
   const router = useRouter();
+  const [inspectBox, setInspectBox] = useState<GiftBox | null>(null);
 
   const handleCheckout = () => {
     closeCart();
@@ -114,13 +309,15 @@ export default function CartDrawer() {
             </div>
           ) : (
             items.map((item) => {
-              const isBox    = isGiftBox(item);
-              const icon     = getDisplayIcon(item);
-              const name     = getDisplayName(item);
-              const qty      = getQuantity(item);
-              const price    = getPriceDisplay(item);
-              // Thumbnail: no longer from PRODUCT_IMAGES, just use emoji icon
-              const thumbSrc = null;
+              const isBox = isGiftBox(item);
+              const icon = getDisplayIcon(item);
+              const name = getDisplayName(item);
+              const qty = getQuantity(item);
+              const price = getPriceDisplay(item);
+              const thumbSrc =
+                !isBox && "image_thumb" in item
+                  ? item.image_thumb || item.image_main || null
+                  : null;
 
               return (
                 <div
@@ -132,13 +329,35 @@ export default function CartDrawer() {
                     boxShadow: "0 2px 8px rgba(47,86,50,0.05)",
                   }}
                 >
-                  {/* Thumbnail */}
+                  {/* Thumbnail / GiftBox preview trigger */}
                   <div
-                    className="w-16 h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center text-2xl"
-                    style={{ background: "rgba(157,196,158,0.12)" }}
+                    className={`w-16 h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center text-2xl ${isBox ? "cursor-pointer" : ""}`}
+                    style={{ background: "rgba(157,196,158,0.12)", position: "relative" }}
+                    onClick={isBox ? () => setInspectBox(item as GiftBox) : undefined}
                   >
-                    {thumbSrc ? (
-                      <img src={thumbSrc} alt={name} className="w-full h-full object-cover" suppressHydrationWarning />
+                    {isBox && item.style && STYLE_IMAGES[item.style] ? (
+                      <>
+                        <img
+                          src={STYLE_IMAGES[item.style]}
+                          alt="Gift box style"
+                          className="w-full h-full object-cover"
+                          suppressHydrationWarning
+                        />
+                        {/* Hover overlay */}
+                        <div
+                          className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-white opacity-0 hover:opacity-100 transition-opacity duration-200"
+                          style={{ background: "rgba(0,0,0,0.45)" }}
+                        >
+                          Xem
+                        </div>
+                      </>
+                    ) : thumbSrc ? (
+                      <img
+                        src={thumbSrc}
+                        alt={name}
+                        className="w-full h-full object-cover"
+                        suppressHydrationWarning
+                      />
                     ) : (
                       icon
                     )}
@@ -150,9 +369,19 @@ export default function CartDrawer() {
                       {name}
                     </p>
                     {isBox ? (
-                      <p className="text-[11px] mt-0.5 line-clamp-1" style={{ color: "#9dc49e" }}>
-                        {getGiftBoxSummary(item)}
-                      </p>
+                      <>
+                        <p className="text-[11px] mt-0.5 line-clamp-1" style={{ color: "#9dc49e" }}>
+                          {getGiftBoxSummary(item as GiftBox)}
+                        </p>
+                        {/* "Xem chi tiết" link */}
+                        <button
+                          onClick={() => setInspectBox(item as GiftBox)}
+                          className="text-[10px] font-semibold mt-1 underline underline-offset-2 transition-colors"
+                          style={{ color: "#4d8550" }}
+                        >
+                          Xem chi tiết →
+                        </button>
+                      </>
                     ) : (
                       <p className="text-[11px] mt-0.5" style={{ color: "#9dc49e" }}>
                         {"weight" in item ? item.weight : ""}
@@ -204,7 +433,10 @@ export default function CartDrawer() {
                     ) : (
                       <span
                         className="text-[10px] font-semibold px-2 py-1 rounded-lg"
-                        style={{ background: "rgba(157,196,158,0.15)", color: "#4d8550" }}
+                        style={{
+                          background: "rgba(157,196,158,0.15)",
+                          color: "#4d8550",
+                        }}
                       >
                         {qty} mục
                       </span>
@@ -282,6 +514,14 @@ export default function CartDrawer() {
           </div>
         )}
       </aside>
+
+      {/* GiftBox Detail Popup */}
+      {inspectBox && (
+        <GiftBoxDetailPopup
+          giftBox={inspectBox}
+          onClose={() => setInspectBox(null)}
+        />
+      )}
     </>
   );
 }

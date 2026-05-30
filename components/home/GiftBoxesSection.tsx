@@ -19,7 +19,9 @@ interface GiftBoxesSectionProps {
   giftCombos: GiftCombo[];
 }
 
-export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) {
+export default function GiftBoxesSection({
+  giftCombos,
+}: GiftBoxesSectionProps) {
   const [ref, inView] = useInView(0.05);
   const { addItem } = useCart();
 
@@ -34,7 +36,10 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
         <div
           className="absolute blob"
           style={{
-            width: "60vw", height: "60vw", top: "-20%", right: "-10%",
+            width: "60vw",
+            height: "60vw",
+            top: "-20%",
+            right: "-10%",
             background:
               "radial-gradient(circle, rgba(47,86,50,0.35) 0%, transparent 65%)",
           }}
@@ -42,7 +47,10 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
         <div
           className="absolute"
           style={{
-            width: "40vw", height: "40vw", bottom: "-10%", left: "5%",
+            width: "40vw",
+            height: "40vw",
+            bottom: "-10%",
+            left: "5%",
             background:
               "radial-gradient(circle, rgba(154,100,32,0.12) 0%, transparent 65%)",
             animation: "blobMorph 16s ease-in-out 3s infinite reverse",
@@ -87,7 +95,8 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
             <br />
             <span
               style={{
-                background: "linear-gradient(135deg, #9dc49e 0%, #6fa470 50%, #f6c87a 100%)",
+                background:
+                  "linear-gradient(135deg, #9dc49e 0%, #6fa470 50%, #f6c87a 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -96,7 +105,10 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
               Sơn La
             </span>
           </h2>
-          <p className="text-sm mt-4 max-w-md mx-auto" style={{ color: "rgba(201,222,202,0.65)" }}>
+          <p
+            className="text-sm mt-4 max-w-md mx-auto"
+            style={{ color: "rgba(201,222,202,0.65)" }}
+          >
             Mỗi hộp là một hành trình qua hương vị núi rừng Tây Bắc
           </p>
         </div>
@@ -158,7 +170,9 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
                 </div>
 
                 <div className="p-5">
-                  <h3 className="font-bold text-base mb-1.5 text-white">{box.name}</h3>
+                  <h3 className="font-bold text-base mb-1.5 text-white">
+                    {box.name}
+                  </h3>
                   <p
                     className="text-xs leading-relaxed mb-4"
                     style={{ color: "rgba(201,222,202,0.65)" }}
@@ -166,8 +180,11 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
                     {box.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="font-extrabold text-lg" style={{ color: "#f6c87a" }}>
-                      {new Intl.NumberFormat('vi-VN').format(box.price)}đ
+                    <span
+                      className="font-extrabold text-lg"
+                      style={{ color: "#f6c87a" }}
+                    >
+                      {new Intl.NumberFormat("vi-VN").format(box.price)}đ
                     </span>
                     <button
                       onClick={() =>
@@ -175,10 +192,14 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
                           id: box.id,
                           name: box.name,
                           priceNum: box.price,
-                          priceLabel: new Intl.NumberFormat('vi-VN').format(box.price) + 'đ',
-                          weight: 'Combo',
+                          priceLabel:
+                            new Intl.NumberFormat("vi-VN").format(box.price) +
+                            "đ",
+                          weight: "Combo",
                           emoji: box.emoji,
                           grad: box.grad,
+                          image_thumb: box.image_url || undefined,
+                          image_main: box.image_url || undefined,
                         })
                       }
                       className="px-4 py-2 rounded-xl text-xs font-bold btn-liquid"
@@ -216,8 +237,18 @@ export default function GiftBoxesSection({ giftCombos }: GiftBoxesSectionProps) 
             }}
           >
             🎁 Tự Tạo Gói Quà Của Bạn
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
             </svg>
           </Link>
         </div>

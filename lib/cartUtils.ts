@@ -98,21 +98,26 @@ export function getPriceDisplay(item: CartElement): string {
 /**
  * Get product info for gift box items (for displaying in cart)
  */
-export function getGiftBoxProductsInfo(giftBox: GiftBox): Array<{ product?: Product; quantity: number }> {
+export function getGiftBoxProductsInfo(giftBox: GiftBox): Array<{ product?: Product; quantity: number; name: string; emoji: string }> {
   return giftBox.items.map(item => ({
     product: PRODUCTS.find(p => p.id === item.productId),
     quantity: item.quantity,
+    name: item.productName ?? (PRODUCTS.find(p => p.id === item.productId)?.name ?? `SP #${item.productId}`),
+    emoji: item.productEmoji ?? (PRODUCTS.find(p => p.id === item.productId)?.emoji ?? '📦'),
   }));
 }
 
 /**
- * Get summary text for gift box (e.g., "🥩×2, 🍯×1")
+ * Get summary text for gift box — shows product names (e.g., "Trà Shan Tuyết×2, Mật Ong×1")
  */
 export function getGiftBoxSummary(giftBox: GiftBox): string {
   return giftBox.items
     .map(item => {
-      const product = PRODUCTS.find(p => p.id === item.productId);
-      return `${product?.emoji}×${item.quantity}`;
+      // Ưu tiên dùng cached name, fallback sang PRODUCTS lookup
+      const name = item.productName
+        ?? PRODUCTS.find(p => p.id === item.productId)?.name
+        ?? `SP #${item.productId}`;
+      return `${name}×${item.quantity}`;
     })
     .join(', ');
 }

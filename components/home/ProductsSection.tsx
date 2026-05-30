@@ -212,6 +212,8 @@ export default function ProductsSection({
                           weight: p.weight,
                           emoji: p.emoji,
                           grad: p.grad,
+                          image_thumb: p.image_thumb,
+                          image_main: p.image_main,
                         });
                       }}
                       className="w-full py-2.5 rounded-xl text-xs font-bold btn-liquid cursor-pointer"
