@@ -40,7 +40,7 @@ export function SocialAuth({ redirectPath }: { redirectPath?: string }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-4">
         <button
           onClick={() => handleLogin('google')}
           disabled={!!isLoading}
@@ -68,9 +68,10 @@ export function SocialAuth({ redirectPath }: { redirectPath?: string }) {
               />
             </svg>
           )}
-          <span className="hidden sm:inline">Google</span>
+          <span>Tiếp tục với Google</span>
         </button>
 
+        {/* Tạm thời ẩn đăng nhập bằng Facebook 
         <button
           onClick={() => handleLogin('facebook')}
           disabled={!!isLoading}
@@ -85,6 +86,7 @@ export function SocialAuth({ redirectPath }: { redirectPath?: string }) {
           )}
           <span className="hidden sm:inline">Facebook</span>
         </button>
+        */}
       </div>
     </div>
   )
