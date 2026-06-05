@@ -5,6 +5,8 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 export interface GiftBoxItem {
   productId: number | string;
   quantity: number;
+  productName?: string;  // Cached name for display
+  productEmoji?: string; // Cached emoji for display
 }
 
 export interface GiftBox {
