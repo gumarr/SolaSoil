@@ -3,6 +3,14 @@
  *  MỘCSƠN — CENTRAL IMAGE CONFIG
  *  Tất cả URL ảnh của dự án được quản lý tại đây.
  *  Thay đổi ảnh chỉ cần sửa file này, không cần chỉnh component.
+ * 
+ *  **QUẢN LÝ ẢNH TẬP TRUNG MỚI:**
+ *  Bạn có thể lưu ảnh cục bộ vào thư mục:
+ *  - `/public/images/products/`
+ *  - `/public/images/categories/`
+ *  - `/public/images/banners/`
+ *  
+ *  Ví dụ đường dẫn thay thế: `main: "/images/products/thit-gac-bep-main.jpg"`
  * ============================================================
  */
 
@@ -79,6 +87,14 @@ export const GIFT_BOX_IMAGES: Record<number, string> = {
   101: "https://dohafood.vn/wp-content/uploads/2024/11/Tet-website-anh-01.jpg",
   102: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=600&h=420&fit=crop&q=85",
   103: "https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=600&h=420&fit=crop&q=85",
+};
+
+// Map style id → preview image path
+export const STYLE_IMAGES: Record<string, string> = {
+  "moc-mac":    "/gift-box-styles/moc-mac.png",
+  "sang-trong": "/gift-box-styles/sang-trong.png",
+  "don-gian":   "/gift-box-styles/don-gian.png",
+  "thanh-lich": "/gift-box-styles/thanh-lich.png",
 };
 
 // ----------------------------------------------------------

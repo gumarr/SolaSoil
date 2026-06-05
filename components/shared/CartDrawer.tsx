@@ -15,14 +15,9 @@ import {
 } from "@/lib/cartUtils";
 
 import { useRouter } from "next/navigation";
-
-// Map style id → preview image path
-const STYLE_IMAGES: Record<string, string> = {
-  "moc-mac":    "/gift-box-styles/moc-mac.png",
-  "sang-trong": "/gift-box-styles/sang-trong.png",
-  "don-gian":   "/gift-box-styles/don-gian.png",
-  "thanh-lich": "/gift-box-styles/thanh-lich.png",
-};
+import Link from "next/link";
+import { PRODUCT_IMAGES, STYLE_IMAGES } from "@/lib/imageConfig";
+import { ShoppingBag, Gift } from "lucide-react";
 
 const STYLE_LABELS: Record<string, string> = {
   "moc-mac":    "Mộc mạc",
@@ -94,8 +89,8 @@ function GiftBoxDetailPopup({
           {/* Header (khi không có ảnh style) */}
           {!styleImage && (
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                style={{ background: "rgba(157,196,158,0.15)" }}>🎁</div>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ background: "rgba(157,196,158,0.15)" }}><Gift size={18} className="text-emerald-800" /></div>
               <div>
                 <p className="font-bold text-sm" style={{ color: "#1a2e1b" }}>Gói Quà Của Bạn</p>
                 {styleLabel && <p className="text-[11px]" style={{ color: "#6fa470" }}>Phong cách: {styleLabel}</p>}
@@ -287,25 +282,26 @@ export default function CartDrawer() {
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center py-20 text-center">
               <div
-                className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mb-5"
+                className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
                 style={{ background: "rgba(157,196,158,0.12)" }}
               >
-                🛒
+                <ShoppingBag size={36} className="text-emerald-800" />
               </div>
               <p className="font-bold text-lg mb-2" style={{ color: "#1a2e1b" }}>Giỏ hàng trống</p>
               <p className="text-sm max-w-48" style={{ color: "#6fa470" }}>
                 Thêm sản phẩm yêu thích vào đây!
               </p>
-              <button
+              <Link
+                href="/products"
                 onClick={closeCart}
-                className="mt-6 px-7 py-3 rounded-full font-bold text-sm text-white btn-liquid"
+                className="mt-6 px-7 py-3 rounded-full font-bold text-sm text-white btn-liquid inline-block text-center"
                 style={{
                   background: "linear-gradient(135deg, #2f5632, #4d8550)",
                   boxShadow: "0 4px 16px rgba(47,86,50,0.25)",
                 }}
               >
                 Khám Phá Sản Phẩm
-              </button>
+              </Link>
             </div>
           ) : (
             items.map((item) => {
@@ -315,8 +311,12 @@ export default function CartDrawer() {
               const qty = getQuantity(item);
               const price = getPriceDisplay(item);
               const thumbSrc =
-                !isBox && "image_thumb" in item
-                  ? item.image_thumb || item.image_main || null
+                !isBox
+                  ? item.image_thumb ||
+                    item.image_main ||
+                    PRODUCT_IMAGES[Number(item.id)]?.thumb ||
+                    PRODUCT_IMAGES[Number(item.id)]?.main ||
+                    null
                   : null;
 
               return (

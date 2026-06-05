@@ -9,6 +9,15 @@ import AnnouncementBar from "@/components/home/AnnouncementBar";
 import NavBar from "@/components/home/NavBar";
 import Footer from "@/components/home/Footer";
 import LensImage from "@/components/ui/LensImage";
+import { Leaf, Utensils, CupSoda, Flame, Apple } from "lucide-react";
+
+const CATEGORY_ICONS: Record<string, any> = {
+  "all": Leaf,
+  "food": Utensils,
+  "drink": CupSoda,
+  "spice": Flame,
+  "fruit": Apple,
+};
 
 const SORT_OPTIONS = [
   { value: "featured",   label: "Nổi bật" },
@@ -91,6 +100,7 @@ export default function ProductsView({ products, categoryTabs }: ProductsViewPro
               ? products.length
               : products.filter(p => p.categoryId === tab.id).length;
             const active = activeCategory === tab.id;
+            const IconComponent = CATEGORY_ICONS[tab.id] || Leaf;
             return (
               <button
                 key={tab.id}
@@ -106,7 +116,7 @@ export default function ProductsView({ products, categoryTabs }: ProductsViewPro
                 onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(47,86,50,0.07)"; }}
                 onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
               >
-                <span>{tab.icon}</span>
+                <IconComponent size={14} className="shrink-0" />
                 <span className="flex-1 text-left">{tab.label}</span>
                 <span className="text-xs" style={{ color: active ? "rgba(201,222,202,0.65)" : "#9dc49e" }}>
                   {cnt}

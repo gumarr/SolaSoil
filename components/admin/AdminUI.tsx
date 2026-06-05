@@ -203,4 +203,77 @@ export function AdminPageHeader({ title, subtitle, onAdd }: { title: string, sub
   )
 }
 
+// ── Media Upload ─────────────────────────────────────────────
+export function AdminMediaUpload({
+  label, name, defaultValue, placeholder
+}: {
+  label: string, name: string, defaultValue?: string | null, placeholder?: string
+}) {
+  const [url, setUrl] = useState(defaultValue || '')
+  const [uploading, setUploading] = useState(false)
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: fd
+      })
+      
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      
+      setUrl(data.url)
+    } catch (err: any) {
+      alert('Upload failed: ' + err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+        {label}
+      </label>
+      <div className="flex gap-2 items-center">
+        <input 
+          name={name} 
+          type="text" 
+          value={url}
+          onChange={e => setUrl(e.target.value)}
+          placeholder={placeholder} 
+          className="flex-1 px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm min-w-0" 
+        />
+        <label className="relative flex-shrink-0 cursor-pointer px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-xl font-semibold text-sm transition-colors text-center w-28 overflow-hidden">
+          {uploading ? 'Đang tải...' : 'Tải lên'}
+          <input 
+            type="file" 
+            accept="image/*,video/*" 
+            onChange={handleUpload} 
+            className="absolute inset-0 opacity-0 cursor-pointer"
+            disabled={uploading}
+          />
+        </label>
+      </div>
+      {url && (
+        <div className="mt-2 relative w-full h-32 bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden flex items-center justify-center">
+          {url.match(/\.(mp4|webm|mov)$/i) ? (
+            <video src={url} className="w-full h-full object-contain" controls />
+          ) : (
+            <img src={url} alt="Preview" className="max-w-full max-h-full object-contain" />
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export { inputStyle, btnPrimary, btnDanger, btnEdit }
+

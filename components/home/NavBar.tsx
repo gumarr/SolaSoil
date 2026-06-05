@@ -6,7 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { createClient } from "@/utils/supabase/client";
 import { signOut } from "@/app/auth/actions";
 import type { User } from "@supabase/supabase-js";
-import { ShoppingBag, User as UserIcon, SignOut, List, X } from "@phosphor-icons/react";
+import { ShoppingBag, User as UserIcon, SignOut, List, X, Gauge } from "@phosphor-icons/react";
 
 const NAV_LINKS = [
   ["/products",        "Sản Phẩm"],
@@ -180,7 +180,7 @@ export default function NavBar() {
                       className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2
                                  transition-colors hover:bg-emerald-50 text-emerald-800 font-semibold"
                     >
-                      <span className="text-base">📊</span>
+                      <Gauge className="w-4 h-4 text-emerald-800" />
                       Trang quản trị
                     </Link>
                   )}
@@ -263,7 +263,7 @@ export default function NavBar() {
                   className="px-4 py-3 rounded-xl font-bold text-sm transition-colors text-emerald-800 bg-emerald-50 hover:bg-emerald-100 flex items-center gap-2"
                   onClick={() => setMobileOpen(false)}
                 >
-                  📊 Trang quản trị
+                  <Gauge className="w-4 h-4 text-emerald-800" /> Trang quản trị
                 </Link>
               )}
               <button

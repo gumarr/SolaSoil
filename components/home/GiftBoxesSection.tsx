@@ -3,6 +3,7 @@
 import { useInView } from "@/hooks/useInView";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { Gift } from "lucide-react";
 
 interface GiftCombo {
   id: string;
@@ -236,7 +237,7 @@ export default function GiftBoxesSection({
               color: "#9dc49e",
             }}
           >
-            🎁 Tự Tạo Gói Quà Của Bạn
+            <span className="flex items-center gap-1.5 justify-center"><Gift size={16} /> Tự Tạo Gói Quà Của Bạn</span>
             <svg
               className="w-4 h-4"
               fill="none"

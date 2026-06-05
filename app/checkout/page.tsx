@@ -7,6 +7,7 @@ import NavBar from '@/components/home/NavBar'
 import Footer from '@/components/home/Footer'
 import { createClient } from '@/utils/supabase/client'
 import MapPickerModal from '@/components/checkout/MapPickerModal'
+import { PRODUCT_IMAGES, STYLE_IMAGES } from '@/lib/imageConfig'
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -47,14 +48,14 @@ export default function CheckoutPage() {
       name: item.name,
       price: item.priceNum,
       quantity: item.qty,
-      image: item.image_thumb || item.image_main
+      image: item.image_thumb || item.image_main || PRODUCT_IMAGES[Number(item.id)]?.thumb || PRODUCT_IMAGES[Number(item.id)]?.main || null
     })),
     ...giftBoxes.map(box => ({
       productId: null, // Gift boxes are complex, usually we'd handle them differently, but for simplicity:
-      name: `Gói quà ${box.style}`,
+      name: `Gói quà ${box.style ? (box.style === 'moc-mac' ? 'Mộc mạc' : box.style === 'sang-trong' ? 'Sang trọng' : box.style === 'don-gian' ? 'Đơn giản' : box.style === 'thanh-lich' ? 'Thanh lịch' : box.style) : ''}`,
       price: box.totalPrice,
       quantity: 1,
-      image: null
+      image: box.style ? STYLE_IMAGES[box.style] : null
     }))
   ]
 

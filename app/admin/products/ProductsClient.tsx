@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AdminTable, AdminRow, AdminCell, AdminFormModal, AdminInput, DeleteButton, AdminPageHeader } from '@/components/admin/AdminUI'
+import { AdminTable, AdminRow, AdminCell, AdminFormModal, AdminInput, AdminMediaUpload, DeleteButton, AdminPageHeader } from '@/components/admin/AdminUI'
 import { createProduct, updateProduct, deleteProduct } from '@/app/admin/actions'
 import { useRouter } from 'next/navigation'
 
@@ -189,9 +189,9 @@ export default function ProductsClient({ products, categories }: { products: any
           <AdminInput label="Emoji" name="emoji" defaultValue={editing?.emoji} placeholder="🥩" />
           <AdminInput label="Badge" name="badge" defaultValue={editing?.badge} placeholder="Bán chạy" />
         </div>
-        <AdminInput label="Ảnh chính (URL)" name="image_main" defaultValue={editing?.image_main} placeholder="https://..." />
-        <AdminInput label="Ảnh reveal (URL)" name="image_reveal" defaultValue={editing?.image_reveal} />
-        <AdminInput label="Ảnh thumb (URL)" name="image_thumb" defaultValue={editing?.image_thumb} />
+        <AdminMediaUpload label="Ảnh chính / Video (URL)" name="image_main" defaultValue={editing?.image_main} placeholder="https://... hoặc Tải lên" />
+        <AdminMediaUpload label="Ảnh reveal (URL)" name="image_reveal" defaultValue={editing?.image_reveal} />
+        <AdminMediaUpload label="Ảnh thumb (URL)" name="image_thumb" defaultValue={editing?.image_thumb} />
         
         {/* Các trường thông tin chi tiết */}
         <AdminInput label="Câu chuyện sản phẩm (Chi tiết)" name="detail_story" defaultValue={editing?.detail_story} rows={3} placeholder="Câu chuyện nguồn gốc, quy trình sản xuất..." />

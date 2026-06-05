@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { AdminTable, AdminRow, AdminCell, AdminFormModal, AdminInput, DeleteButton, AdminPageHeader } from '@/components/admin/AdminUI'
+import { AdminTable, AdminRow, AdminCell, AdminFormModal, AdminInput, AdminMediaUpload, DeleteButton, AdminPageHeader } from '@/components/admin/AdminUI'
 import { createCategory, updateCategory, deleteCategory } from '@/app/admin/actions'
 import { useRouter } from 'next/navigation'
 
@@ -86,7 +86,7 @@ export default function CategoriesClient({ categories }: { categories: any[] }) 
         <AdminInput label="Mô tả" name="description" defaultValue={editing?.description} rows={2} />
         <AdminInput label="Subtitle" name="subtitle" defaultValue={editing?.subtitle} />
         <AdminInput label="Gradient" name="grad" defaultValue={editing?.grad} placeholder="from-stone-900 to-amber-900" />
-        <AdminInput label="Ảnh (URL)" name="image_url" defaultValue={editing?.image_url} />
+        <AdminMediaUpload label="Ảnh (URL)" name="image_url" defaultValue={editing?.image_url} />
       </AdminFormModal>
     </>
   )

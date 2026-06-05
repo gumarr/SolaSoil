@@ -1,6 +1,15 @@
 "use client";
 
 import { useInView } from "@/hooks/useInView";
+import { Leaf, Utensils, CupSoda, Flame, Apple } from "lucide-react";
+
+const CATEGORY_ICONS: Record<string, any> = {
+  "all": Leaf,
+  "food": Utensils,
+  "drink": CupSoda,
+  "spice": Flame,
+  "fruit": Apple,
+};
 
 interface Category {
   id: string;
@@ -58,7 +67,9 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {categories.map((cat, i) => (
+          {categories.map((cat, i) => {
+            const IconComponent = CATEGORY_ICONS[cat.id] || Leaf;
+            return (
             <div
               key={cat.id}
               style={{
@@ -88,9 +99,9 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
                     />
                   ) : (
                     <div
-                      className={`w-full h-full bg-gradient-to-br ${cat.grad} flex items-center justify-center text-5xl`}
+                      className={`w-full h-full bg-gradient-to-br ${cat.grad} flex items-center justify-center`}
                     >
-                      {cat.icon}
+                      <IconComponent size={48} className="text-white/80" />
                     </div>
                   )}
                   <div
@@ -101,7 +112,9 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
                     }}
                   />
                   <div className="absolute bottom-4 left-4">
-                    <div className="text-3xl mb-1.5">{cat.icon}</div>
+                    <div className="text-white mb-1.5">
+                      <IconComponent size={24} />
+                    </div>
                     <h3 className="font-extrabold text-white text-base leading-tight">{cat.label}</h3>
                   </div>
                   <div
@@ -150,7 +163,8 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
                 </div>
               </div>
             </div>
-          ))}
+          )
+        })}
         </div>
       </div>
     </section>
