@@ -44,6 +44,8 @@ export default function LensImage({
   }, [active]);
 
   const usePhoto = !!(mainImage && revealImage);
+  const isVideo = mainImage?.match(/\.(mp4|webm|mov)$/i);
+  const isRevealVideo = revealImage?.match(/\.(mp4|webm|mov)$/i);
 
   return (
     <div
@@ -59,16 +61,25 @@ export default function LensImage({
         <div 
           className={`absolute inset-0 w-full h-full bg-gradient-to-br ${baseGrad}`}
         >
-          <picture>
-            <img
+          {isVideo ? (
+            <video
               src={mainImage}
-              alt={alt}
               className="w-full h-full object-cover"
-              loading="eager"
+              autoPlay muted loop playsInline
               style={{ display: "block" }}
-              suppressHydrationWarning
             />
-          </picture>
+          ) : (
+            <picture>
+              <img
+                src={mainImage}
+                alt={alt}
+                className="w-full h-full object-cover"
+                loading="eager"
+                style={{ display: "block" }}
+                suppressHydrationWarning
+              />
+            </picture>
+          )}
           {/* Subtle vignette */}
           <div
             className="absolute inset-0 pointer-events-none"
@@ -123,13 +134,22 @@ export default function LensImage({
                   height: containerRef.current?.clientHeight ?? 256,
                 }}
               >
-                <img
-                  src={revealImage}
-                  alt={alt}
-                  className="w-full h-full object-cover"
-                  style={{ transform: "scale(1.55)", transformOrigin: `${pos.x}px ${pos.y}px` }}
-                  suppressHydrationWarning
-                />
+                {isRevealVideo ? (
+                  <video
+                    src={revealImage}
+                    className="w-full h-full object-cover"
+                    autoPlay muted loop playsInline
+                    style={{ transform: "scale(1.55)", transformOrigin: `${pos.x}px ${pos.y}px` }}
+                  />
+                ) : (
+                  <img
+                    src={revealImage}
+                    alt={alt}
+                    className="w-full h-full object-cover"
+                    style={{ transform: "scale(1.55)", transformOrigin: `${pos.x}px ${pos.y}px` }}
+                    suppressHydrationWarning
+                  />
+                )}
                 {/* Warm tint inside lens */}
                 <div
                   className="absolute inset-0"

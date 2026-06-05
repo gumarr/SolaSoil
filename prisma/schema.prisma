@@ -15,6 +15,9 @@ model Category {
   name        String
   icon        String?
   description String?
+  subtitle    String?
+  grad        String?   @default("from-stone-900 to-amber-900")
+  image_url   String?
   created_at  DateTime? @default(now()) @db.Timestamptz
 
   // Relations
@@ -36,6 +39,14 @@ model Product {
   ocop_stars         Int?
   origin             String?   @default("Sơn La")
   is_active          Boolean?  @default(true)
+  image_main         String?
+  image_reveal       String?
+  image_thumb        String?
+  emoji              String?   @default("📦")
+  reveal_emoji       String?   @default("✨")
+  grad               String?   @default("from-stone-800 via-stone-700 to-amber-900")
+  reveal_grad        String?   @default("from-orange-700 via-red-700 to-rose-800")
+  badge              String?
   detail_story       String?
   ingredients        String?
   usage_instructions String?
@@ -61,7 +72,8 @@ model User {
   created_at DateTime? @default(now()) @db.Timestamptz
 
   // Relations
-  orders Order[]
+  orders        Order[]
+  chat_sessions ChatSession[]
 
   @@map("users")
 }
@@ -131,4 +143,75 @@ model OrderItem {
   combo   Combo?   @relation(fields: [combo_id], references: [id])
 
   @@map("order_items")
+}
+
+// ── Bảng chat_sessions ───────────────────────────────────
+model ChatSession {
+  id            String    @id @default(uuid()) @db.Uuid
+  user_id       String?   @db.Uuid
+  session_key   String    @unique
+  customer_name String    @default("Khách hàng")
+  created_at    DateTime? @default(now()) @db.Timestamptz
+  updated_at    DateTime? @default(now()) @db.Timestamptz
+
+  // Relations
+  messages      ChatMessage[]
+  user          User?     @relation(fields: [user_id], references: [id])
+
+  @@map("chat_sessions")
+}
+
+// ── Bảng chat_messages ───────────────────────────────────
+model ChatMessage {
+  id          String    @id @default(uuid()) @db.Uuid
+  session_id  String    @db.Uuid
+  sender_id   String?   @db.Uuid
+  sender_role String    @default("customer") // "customer" or "admin"
+  content     String
+  is_read     Boolean   @default(false)
+  created_at  DateTime? @default(now()) @db.Timestamptz
+
+  // Relations
+  session     ChatSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+// ── Bảng gift_combos ──────────────────────────────────────
+model GiftCombo {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  price       Decimal   @db.Decimal
+  image_url   String?
+  emoji       String?   @default("🎁")
+  grad        String?   @default("from-stone-800 to-green-900")
+  tag         String?
+  is_active   Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamptz
+
+  @@map("gift_combos")
+}
+
+// ── Bảng testimonials ─────────────────────────────────────
+model Testimonial {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  role       String?
+  text       String
+  location   String?
+  rating     Int?      @default(5)
+  is_active  Boolean?  @default(true)
+  created_at DateTime? @default(now()) @db.Timestamptz
+
+  @@map("testimonials")
+}
+
+// ── Bảng site_config ──────────────────────────────────────
+model SiteConfig {
+  key        String    @id
+  value      Json
+  updated_at DateTime? @default(now()) @db.Timestamptz
+
+  @@map("site_config")
 }

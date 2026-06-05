@@ -7,6 +7,15 @@ import { useCart } from "@/context/CartContext";
 import LensImage from "@/components/ui/LensImage";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Leaf, Utensils, CupSoda, Flame, Apple } from "lucide-react";
+
+export const CATEGORY_ICONS: Record<string, any> = {
+  "all": Leaf,
+  "food": Utensils,
+  "drink": CupSoda,
+  "spice": Flame,
+  "fruit": Apple,
+};
 
 interface Category {
   id: string;
@@ -119,32 +128,35 @@ export default function ProductsSection({
                     }
               }
             >
-              🌿 Tất Cả
+              <Leaf size={12} className="shrink-0" /> Tất Cả
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => onCategoryChange(cat.id)}
-                className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300"
-                style={
-                  activeCategory === cat.id
-                    ? {
-                        background: "linear-gradient(135deg, #2f5632, #4d8550)",
-                        color: "#faf8f4",
-                        boxShadow: "0 4px 16px rgba(47,86,50,0.25)",
-                        transform: "translateY(-1px)",
-                      }
-                    : {
-                        background: "rgba(47,86,50,0.07)",
-                        color: "#3a6b3d",
-                        border: "1px solid rgba(201,222,202,0.35)",
-                      }
-                }
-              >
-                <span>{cat.icon}</span>
-                {cat.name}
-              </button>
-            ))}
+            {categories.map((cat) => {
+              const IconComponent = CATEGORY_ICONS[cat.id] || Leaf;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => onCategoryChange(cat.id)}
+                  className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300"
+                  style={
+                    activeCategory === cat.id
+                      ? {
+                          background: "linear-gradient(135deg, #2f5632, #4d8550)",
+                          color: "#faf8f4",
+                          boxShadow: "0 4px 16px rgba(47,86,50,0.25)",
+                          transform: "translateY(-1px)",
+                        }
+                      : {
+                          background: "rgba(47,86,50,0.07)",
+                          color: "#3a6b3d",
+                          border: "1px solid rgba(201,222,202,0.35)",
+                        }
+                  }
+                >
+                  <IconComponent size={12} className="shrink-0" />
+                  {cat.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 

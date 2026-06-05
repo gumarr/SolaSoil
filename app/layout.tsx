@@ -3,6 +3,7 @@ import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/shared/CartDrawer";
+import ChatWidget from "@/components/shared/ChatWidget";
 
 const beVietnamPro = Be_Vietnam_Pro({
   variable: "--font-be-vietnam-pro",
@@ -34,6 +35,7 @@ export default function RootLayout({
         <CartProvider>
           {children}
           <CartDrawer />
+          <ChatWidget />
         </CartProvider>
       </body>
     </html>

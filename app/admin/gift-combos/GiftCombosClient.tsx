@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { AdminTable, AdminRow, AdminCell, AdminFormModal, AdminInput, DeleteButton, AdminPageHeader } from '@/components/admin/AdminUI'
+import { AdminTable, AdminRow, AdminCell, AdminFormModal, AdminInput, AdminMediaUpload, DeleteButton, AdminPageHeader } from '@/components/admin/AdminUI'
 import { createGiftCombo, updateGiftCombo, deleteGiftCombo } from '@/app/admin/actions'
 import { useRouter } from 'next/navigation'
 
@@ -129,7 +129,7 @@ export default function GiftCombosClient({ giftCombos }: { giftCombos: any[] }) 
           <AdminInput label="Emoji" name="emoji" defaultValue={editing?.emoji} placeholder="🎁" />
           <AdminInput label="Gradient" name="grad" defaultValue={editing?.grad} placeholder="from-stone-800 to-green-900" />
         </div>
-        <AdminInput label="Ảnh (URL)" name="image_url" defaultValue={editing?.image_url} />
+        <AdminMediaUpload label="Ảnh (URL)" name="image_url" defaultValue={editing?.image_url} />
         {editing && (
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Trạng thái</label>
