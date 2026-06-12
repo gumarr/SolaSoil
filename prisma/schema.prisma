@@ -90,7 +90,6 @@ model Combo {
 
   // Relations
   combo_items ComboItem[]
-  order_items OrderItem[]
 
   @@map("combos")
 }
@@ -138,9 +137,9 @@ model OrderItem {
   price_at_purchase Decimal  @db.Decimal
 
   // Relations
-  order   Order?   @relation(fields: [order_id], references: [id])
-  product Product? @relation(fields: [product_id], references: [id])
-  combo   Combo?   @relation(fields: [combo_id], references: [id])
+  order      Order?     @relation(fields: [order_id], references: [id])
+  product    Product?   @relation(fields: [product_id], references: [id])
+  gift_combo GiftCombo? @relation(fields: [combo_id], references: [id])
 
   @@map("order_items")
 }
@@ -189,6 +188,9 @@ model GiftCombo {
   tag         String?
   is_active   Boolean?  @default(true)
   created_at  DateTime? @default(now()) @db.Timestamptz
+
+  // Relations
+  order_items OrderItem[]
 
   @@map("gift_combos")
 }

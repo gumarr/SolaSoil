@@ -29,6 +29,7 @@ export async function createProduct(formData: FormData) {
   const { supabase } = await requireAdmin()
 
   const { error } = await supabase.from('products').insert({
+    id: crypto.randomUUID(),
     name: formData.get('name') as string,
     description: formData.get('description') as string,
     price: Number(formData.get('price')),
@@ -104,6 +105,7 @@ export async function createCategory(formData: FormData) {
   const { supabase } = await requireAdmin()
 
   const { error } = await supabase.from('categories').insert({
+    id: crypto.randomUUID(),
     name: formData.get('name') as string,
     icon: formData.get('icon') as string || '📦',
     description: formData.get('description') as string || null,
@@ -153,6 +155,7 @@ export async function createTestimonial(formData: FormData) {
   const { supabase } = await requireAdmin()
 
   const { error } = await supabase.from('testimonials').insert({
+    id: crypto.randomUUID(),
     name: formData.get('name') as string,
     role: formData.get('role') as string,
     text: formData.get('text') as string,
@@ -201,6 +204,7 @@ export async function createGiftCombo(formData: FormData) {
   const { supabase } = await requireAdmin()
 
   const { error } = await supabase.from('gift_combos').insert({
+    id: crypto.randomUUID(),
     name: formData.get('name') as string,
     description: formData.get('description') as string,
     price: Number(formData.get('price')),
