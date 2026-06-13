@@ -92,6 +92,10 @@ async function main() {
     CREATE POLICY "Admin write site_config" ON public.site_config FOR ALL
       USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
 
+    -- 9. Fix order_items combo_id foreign key constraint to reference gift_combos instead of combos
+    ALTER TABLE public.order_items DROP CONSTRAINT IF EXISTS order_items_combo_id_fkey;
+    ALTER TABLE public.order_items ADD CONSTRAINT order_items_combo_id_fkey FOREIGN KEY (combo_id) REFERENCES public.gift_combos(id) ON DELETE SET NULL;
+
     -- 8. Reload schema cache
     NOTIFY pgrst, 'reload schema';
   `

@@ -43,15 +43,20 @@ export default function CheckoutPage() {
   }, [router])
 
   const allItems = [
-    ...cartItems.map(item => ({
-      productId: item.id,
-      name: item.name,
-      price: item.priceNum,
-      quantity: item.qty,
-      image: item.image_thumb || item.image_main || PRODUCT_IMAGES[Number(item.id)]?.thumb || PRODUCT_IMAGES[Number(item.id)]?.main || null
-    })),
+    ...cartItems.map(item => {
+      const isCombo = item.weight === 'Combo';
+      return {
+        productId: isCombo ? null : item.id,
+        comboId: isCombo ? item.id : null,
+        name: item.name,
+        price: item.priceNum,
+        quantity: item.qty,
+        image: item.image_thumb || item.image_main || PRODUCT_IMAGES[Number(item.id)]?.thumb || PRODUCT_IMAGES[Number(item.id)]?.main || null
+      };
+    }),
     ...giftBoxes.map(box => ({
-      productId: null, // Gift boxes are complex, usually we'd handle them differently, but for simplicity:
+      productId: null,
+      comboId: null,
       name: `Gói quà ${box.style ? (box.style === 'moc-mac' ? 'Mộc mạc' : box.style === 'sang-trong' ? 'Sang trọng' : box.style === 'don-gian' ? 'Đơn giản' : box.style === 'thanh-lich' ? 'Thanh lịch' : box.style) : ''}`,
       price: box.totalPrice,
       quantity: 1,
@@ -195,21 +200,21 @@ export default function CheckoutPage() {
                   <span className="font-semibold text-gray-900">Thanh toán khi nhận hàng (COD)</span>
                 </label>
 
-                <label className={`flex items-center p-4 border rounded-2xl cursor-pointer transition-all ${formData.paymentMethod === 'vnpay' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
+                <label className={`flex items-center p-4 border rounded-2xl cursor-pointer transition-all ${formData.paymentMethod === 'payos' ? 'border-emerald-600 bg-emerald-50' : 'border-gray-200 hover:border-emerald-300'}`}>
                   <input
                     type="radio"
                     name="payment"
-                    value="vnpay"
-                    checked={formData.paymentMethod === 'vnpay'}
+                    value="payos"
+                    checked={formData.paymentMethod === 'payos'}
                     onChange={e => setFormData({...formData, paymentMethod: e.target.value})}
                     className="hidden"
                   />
-                  <div className={`w-5 h-5 rounded-full border-2 mr-4 flex items-center justify-center ${formData.paymentMethod === 'vnpay' ? 'border-blue-600' : 'border-gray-300'}`}>
-                    {formData.paymentMethod === 'vnpay' && <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>}
+                  <div className={`w-5 h-5 rounded-full border-2 mr-4 flex items-center justify-center ${formData.paymentMethod === 'payos' ? 'border-emerald-600' : 'border-gray-300'}`}>
+                    {formData.paymentMethod === 'payos' && <div className="w-2.5 h-2.5 rounded-full bg-emerald-600"></div>}
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-900">Thanh toán qua VNPay</span>
-                    <p className="text-xs text-gray-500">Thẻ ATM, Visa, Master, QR Pay</p>
+                    <span className="font-semibold text-gray-900">Thanh toán qua PayOS</span>
+                    <p className="text-xs text-gray-500">QR Code, Thẻ ATM, Visa, Ví điện tử</p>
                   </div>
                 </label>
               </div>
@@ -221,7 +226,7 @@ export default function CheckoutPage() {
                 {loading ? (
                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  formData.paymentMethod === 'vnpay' ? '🚀 Thanh toán ngay' : '📦 Đặt hàng ngay'
+                  formData.paymentMethod === 'payos' ? '🚀 Thanh toán ngay' : '📦 Đặt hàng ngay'
                 )}
               </button>
             </form>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
 interface MapPickerModalProps {
   isOpen: boolean
@@ -9,140 +9,214 @@ interface MapPickerModalProps {
   initialAddress?: string
 }
 
+// Leaflet CSS CDN
+const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+const LEAFLET_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+
+// Nominatim reverse geocode
+async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=vi`,
+      { headers: { 'User-Agent': 'SolaSoil/1.0' } }
+    )
+    const data = await res.json()
+    return data.display_name || ''
+  } catch {
+    return ''
+  }
+}
+
+// Nominatim forward search
+async function searchAddress(query: string): Promise<any[]> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=vn&accept-language=vi`,
+      { headers: { 'User-Agent': 'SolaSoil/1.0' } }
+    )
+    return await res.json()
+  } catch {
+    return []
+  }
+}
+
 export default function MapPickerModal({
   isOpen,
   onClose,
   onConfirm,
   initialAddress = ''
 }: MapPickerModalProps) {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const autocompleteInputRef = useRef<HTMLInputElement>(null)
+  const mapContainerRef = useRef<HTMLDivElement>(null)
   const [address, setAddress] = useState(initialAddress)
-  const [mapLoaded, setMapLoaded] = useState(false)
+  const [mapReady, setMapReady] = useState(false)
   const [loadingGeo, setLoadingGeo] = useState(false)
-  
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [showResults, setShowResults] = useState(false)
+  const [searching, setSearching] = useState(false)
+
   const mapInstanceRef = useRef<any>(null)
-  const markerInstanceRef = useRef<any>(null)
-  const geocoderRef = useRef<any>(null)
+  const markerRef = useRef<any>(null)
+  const searchTimeoutRef = useRef<any>(null)
 
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
-
+  // Load Leaflet CSS & JS
   useEffect(() => {
     if (!isOpen) return
 
-    // Inject Google Maps script if not already present
-    if (typeof window !== 'undefined' && !window.hasOwnProperty('google')) {
-      const scriptId = 'google-maps-script'
-      let script = document.getElementById(scriptId) as HTMLScriptElement
-
-      if (!script) {
-        script = document.createElement('script')
-        script.id = scriptId
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
-        script.async = true
-        script.defer = true
-        script.onload = () => {
-          setMapLoaded(true)
-        }
-        document.body.appendChild(script)
-      } else {
-        // Script exists but maybe not fully loaded yet
-        const checkLoaded = setInterval(() => {
-          if (window.hasOwnProperty('google')) {
-            setMapLoaded(true)
-            clearInterval(checkLoaded)
-          }
-        }, 100)
-      }
-    } else {
-      setMapLoaded(true)
+    // Inject CSS
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link')
+      link.id = 'leaflet-css'
+      link.rel = 'stylesheet'
+      link.href = LEAFLET_CSS
+      document.head.appendChild(link)
     }
-  }, [isOpen, apiKey])
 
+    // Inject JS
+    const L = (window as any).L
+    if (L) {
+      setMapReady(true)
+      return
+    }
+
+    if (!document.getElementById('leaflet-js')) {
+      const script = document.createElement('script')
+      script.id = 'leaflet-js'
+      script.src = LEAFLET_JS
+      script.async = true
+      script.onload = () => setMapReady(true)
+      document.body.appendChild(script)
+    } else {
+      const check = setInterval(() => {
+        if ((window as any).L) {
+          setMapReady(true)
+          clearInterval(check)
+        }
+      }, 100)
+      return () => clearInterval(check)
+    }
+  }, [isOpen])
+
+  // Initialize map
   useEffect(() => {
-    if (!isOpen || !mapLoaded || !mapRef.current) return
+    if (!isOpen || !mapReady || !mapContainerRef.current) return
 
-    const google = (window as any).google
-    if (!google) return
+    const L = (window as any).L
+    if (!L) return
 
-    // Default center: Hanoi, Vietnam
-    const defaultCenter = { lat: 21.0285, lng: 105.8542 }
-    geocoderRef.current = new google.maps.Geocoder()
+    // Avoid re-init
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.invalidateSize()
+      return
+    }
 
-    // Initialize Map
-    const map = new google.maps.Map(mapRef.current, {
+    const defaultCenter: [number, number] = [21.0285, 105.8542] // Hanoi
+
+    const map = L.map(mapContainerRef.current, {
       center: defaultCenter,
       zoom: 15,
-      mapTypeControl: false,
-      fullscreenControl: false,
-      streetViewControl: false,
+      zoomControl: true,
     })
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19,
+    }).addTo(map)
+
+    // Custom green marker icon
+    const greenIcon = L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    })
+
+    const marker = L.marker(defaultCenter, { 
+      draggable: true, 
+      icon: greenIcon 
+    }).addTo(map)
+
     mapInstanceRef.current = map
+    markerRef.current = marker
 
-    // Initialize Marker
-    const marker = new google.maps.Marker({
-      position: defaultCenter,
-      map: map,
-      draggable: true,
-      animation: google.maps.Animation.DROP
+    // Drag end → reverse geocode
+    marker.on('dragend', async () => {
+      const pos = marker.getLatLng()
+      const addr = await reverseGeocode(pos.lat, pos.lng)
+      if (addr) setAddress(addr)
     })
-    markerInstanceRef.current = marker
 
-    // Set map address dynamically if initialAddress is present
+    // Click map → move marker + reverse geocode
+    map.on('click', async (e: any) => {
+      const { lat, lng } = e.latlng
+      marker.setLatLng([lat, lng])
+      const addr = await reverseGeocode(lat, lng)
+      if (addr) setAddress(addr)
+    })
+
+    // If initial address, try to geocode it
     if (initialAddress) {
       setAddress(initialAddress)
-      geocoderRef.current.geocode({ address: initialAddress }, (results: any, status: any) => {
-        if (status === 'OK' && results[0]) {
-          const loc = results[0].geometry.location
-          map.setCenter(loc)
-          marker.setPosition(loc)
+      searchAddress(initialAddress).then(results => {
+        if (results.length > 0) {
+          const { lat, lon } = results[0]
+          const latNum = parseFloat(lat)
+          const lonNum = parseFloat(lon)
+          map.setView([latNum, lonNum], 16)
+          marker.setLatLng([latNum, lonNum])
         }
       })
     }
 
-    // Auto-complete setup
-    if (autocompleteInputRef.current) {
-      const autocomplete = new google.maps.places.Autocomplete(autocompleteInputRef.current)
-      autocomplete.bindTo('bounds', map)
+    // Cleanup on modal close
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove()
+        mapInstanceRef.current = null
+        markerRef.current = null
+      }
+    }
+  }, [isOpen, mapReady, initialAddress])
 
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace()
-        if (!place.geometry || !place.geometry.location) return
+  // Debounced search
+  const handleSearchInput = useCallback((value: string) => {
+    setSearchQuery(value)
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
 
-        const loc = place.geometry.location
-        map.setCenter(loc)
-        marker.setPosition(loc)
-        setAddress(place.formatted_address || '')
-      })
+    if (value.trim().length < 3) {
+      setSearchResults([])
+      setShowResults(false)
+      return
     }
 
-    // Drag marker event
-    marker.addListener('dragend', () => {
-      const position = marker.getPosition()
-      if (!position) return
+    setSearching(true)
+    searchTimeoutRef.current = setTimeout(async () => {
+      const results = await searchAddress(value)
+      setSearchResults(results)
+      setShowResults(results.length > 0)
+      setSearching(false)
+    }, 500)
+  }, [])
 
-      geocoderRef.current.geocode({ location: position }, (results: any, status: any) => {
-        if (status === 'OK' && results[0]) {
-          setAddress(results[0].formatted_address)
-        }
-      })
-    })
+  // Select a search result
+  const handleSelectResult = (result: any) => {
+    const lat = parseFloat(result.lat)
+    const lon = parseFloat(result.lon)
+    const displayName = result.display_name
 
-    // Click map to place marker
-    map.addListener('click', (event: any) => {
-      const position = event.latLng
-      marker.setPosition(position)
-      
-      geocoderRef.current.geocode({ location: position }, (results: any, status: any) => {
-        if (status === 'OK' && results[0]) {
-          setAddress(results[0].formatted_address)
-        }
-      })
-    })
+    setAddress(displayName)
+    setSearchQuery(displayName)
+    setShowResults(false)
 
-  }, [isOpen, mapLoaded, initialAddress])
+    if (mapInstanceRef.current && markerRef.current) {
+      mapInstanceRef.current.setView([lat, lon], 17)
+      markerRef.current.setLatLng([lat, lon])
+    }
+  }
 
-  // Get current location
+  // Get current GPS location
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
       alert('Trình duyệt của bạn không hỗ trợ định vị.')
@@ -151,28 +225,20 @@ export default function MapPickerModal({
 
     setLoadingGeo(true)
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const google = (window as any).google
-        if (!google || !mapInstanceRef.current || !markerInstanceRef.current) {
-          setLoadingGeo(false)
-          return
+      async (position) => {
+        const { latitude, longitude } = position.coords
+
+        if (mapInstanceRef.current && markerRef.current) {
+          mapInstanceRef.current.setView([latitude, longitude], 17)
+          markerRef.current.setLatLng([latitude, longitude])
         }
 
-        const latLng = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
+        const addr = await reverseGeocode(latitude, longitude)
+        if (addr) {
+          setAddress(addr)
+          setSearchQuery(addr)
         }
-
-        mapInstanceRef.current.setCenter(latLng)
-        mapInstanceRef.current.setZoom(17)
-        markerInstanceRef.current.setPosition(latLng)
-
-        geocoderRef.current.geocode({ location: latLng }, (results: any, status: any) => {
-          if (status === 'OK' && results[0]) {
-            setAddress(results[0].formatted_address)
-          }
-          setLoadingGeo(false)
-        })
+        setLoadingGeo(false)
       },
       (error) => {
         console.error('Geolocation error:', error)
@@ -183,13 +249,26 @@ export default function MapPickerModal({
   }
 
   const handleConfirm = () => {
-    if (!address) {
+    const finalAddress = address.trim()
+    if (!finalAddress) {
       alert('Vui lòng chọn hoặc nhập một địa chỉ hợp lệ.')
       return
     }
-    onConfirm(address)
+    onConfirm(finalAddress)
     onClose()
   }
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchResults([])
+      setShowResults(false)
+      setSearchQuery('')
+    } else {
+      setAddress(initialAddress)
+      setSearchQuery('')
+    }
+  }, [isOpen, initialAddress])
 
   if (!isOpen) return null
 
@@ -212,20 +291,46 @@ export default function MapPickerModal({
         <div className="flex gap-2 mb-4">
           <div className="relative flex-1">
             <input
-              ref={autocompleteInputRef}
               type="text"
-              placeholder="Tìm kiếm địa chỉ hoặc kéo thả ghim trên bản đồ..."
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Tìm kiếm địa chỉ (vd: 123 Nguyễn Trãi, Hà Nội)..."
+              value={searchQuery}
+              onChange={(e) => handleSearchInput(e.target.value)}
+              onFocus={() => searchResults.length > 0 && setShowResults(true)}
               className="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all text-sm text-gray-900"
             />
-            {address && (
+            {searching && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+            {searchQuery && !searching && (
               <button 
-                onClick={() => setAddress('')} 
+                onClick={() => {
+                  setSearchQuery('')
+                  setSearchResults([])
+                  setShowResults(false)
+                }} 
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 ✕
               </button>
+            )}
+
+            {/* Search Results Dropdown */}
+            {showResults && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
+                {searchResults.map((result, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSelectResult(result)}
+                    className="w-full text-left px-4 py-3 hover:bg-green-50 text-sm text-gray-700 border-b border-gray-50 last:border-0 transition-colors"
+                  >
+                    <span className="mr-2">📍</span>
+                    {result.display_name}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
           <button
@@ -242,15 +347,23 @@ export default function MapPickerModal({
           </button>
         </div>
 
+        {/* Selected address display */}
+        {address && (
+          <div className="mb-3 px-4 py-2 bg-green-50 rounded-xl border border-green-200 text-sm text-green-900 flex items-start gap-2">
+            <span className="shrink-0 mt-0.5">✅</span>
+            <span className="line-clamp-2">{address}</span>
+          </div>
+        )}
+
         {/* Map Container */}
         <div className="flex-1 w-full bg-gray-100 rounded-2xl overflow-hidden relative border border-gray-200 mb-6">
-          {!mapLoaded ? (
+          {!mapReady ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-500">
               <div className="w-8 h-8 border-4 border-green-800 border-t-transparent rounded-full animate-spin"></div>
               <p className="text-sm font-medium">Đang tải Bản đồ...</p>
             </div>
           ) : (
-            <div ref={mapRef} className="w-full h-full" />
+            <div ref={mapContainerRef} className="w-full h-full" style={{ minHeight: '300px' }} />
           )}
         </div>
 
@@ -266,7 +379,12 @@ export default function MapPickerModal({
           <button
             type="button"
             onClick={handleConfirm}
-            className="px-6 py-3 bg-green-800 hover:bg-green-900 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-green-900/20"
+            disabled={!address.trim()}
+            className={`px-6 py-3 font-bold rounded-xl text-sm transition-all shadow-md ${
+              address.trim() 
+                ? 'bg-green-800 hover:bg-green-900 text-white shadow-green-900/20' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+            }`}
           >
             Xác nhận địa chỉ
           </button>
