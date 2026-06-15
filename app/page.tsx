@@ -7,6 +7,7 @@ import ProductsSection from "@/components/home/ProductsSection"
 import QuoteSection from "@/components/home/QuoteSection"
 import CategoriesSection from "@/components/home/CategoriesSection"
 import StorySection from "@/components/home/StorySection"
+import CertificatesSection from "@/components/home/CertificatesSection"
 import GiftBoxesSection from "@/components/home/GiftBoxesSection"
 import TestimonialsSection from "@/components/home/TestimonialsSection"
 import NewsletterSection from "@/components/home/NewsletterSection"
@@ -99,6 +100,7 @@ export default async function Home({
       <QuoteSection quoteBg={quoteBgConfig?.value?.url} />
       <CategoriesSection categories={formattedCategories} />
       <StorySection storyImages={storyConfig?.value} />
+      <CertificatesSection />
       <GiftBoxesSection giftCombos={giftCombos || []} />
       <TestimonialsSection testimonials={testimonials || []} />
       <NewsletterSection />
