@@ -36,10 +36,41 @@ interface ProductDetailClientProps {
 
 type TabType = "story" | "ingredients" | "instructions" | "benefits";
 
+const getProductCertificate = (name: string) => {
+  const normalized = name.toLowerCase();
+  if (normalized.includes("mận") && (normalized.includes("sấy") || normalized.includes("dẻo"))) {
+    return {
+      title: "Chứng Nhận Kiểm Định Mận Hậu Sấy Dẻo",
+      subtitle: "Tiêu chuẩn An toàn Vệ sinh Thực phẩm",
+      imgUrl: "/certificates/giay_chung_nhan_man_say.jpg",
+      desc: "Sản phẩm Mận Hậu Sấy Dẻo đạt đầy đủ chứng nhận kiểm nghiệm chất lượng và an toàn thực phẩm, không hóa chất bảo quản.",
+    };
+  }
+  if (normalized.includes("chuối") && (normalized.includes("sấy") || normalized.includes("dẻo"))) {
+    return {
+      title: "Chứng Nhận Kiểm Định Chuối Sấy Dẻo",
+      subtitle: "Tiêu chuẩn An toàn Vệ sinh Thực phẩm",
+      imgUrl: "/certificates/giay_chung_nhan_chuoi_say.jpg",
+      desc: "Sản phẩm Chuối Sấy Dẻo được kiểm nghiệm đạt chỉ tiêu lý hóa và vi sinh an toàn, chế biến từ chuối sạch tự nhiên Sơn La.",
+    };
+  }
+  if (normalized.includes("xoài") && (normalized.includes("sấy") || normalized.includes("dẻo"))) {
+    return {
+      title: "Chứng Nhận Kiểm Định Xoài Sấy Dẻo",
+      subtitle: "Tiêu chuẩn An toàn Vệ sinh Thực phẩm",
+      imgUrl: "/certificates/giay_chung_nhan_xoai_say.jpg",
+      desc: "Sản phẩm Xoài Sấy Dẻo đạt chuẩn chất lượng kiểm nghiệm an toàn thực phẩm, giữ trọn vị ngọt thơm tự nhiên của xoài Sơn La.",
+    };
+  }
+  return null;
+};
+
 export default function ProductDetailClient({ product, relatedProducts }: ProductDetailClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("story");
   const [quantity, setQuantity] = useState(1);
+  const [showCertModal, setShowCertModal] = useState(false);
   const { addItem } = useCart();
+  const cert = getProductCertificate(product.name);
 
   const handleAddToCart = () => {
     addItem({
@@ -252,6 +283,66 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
           </div>
         </div>
 
+        {/* ── Certificate Section ── */}
+        {cert && (
+          <div className="mt-16 bg-white rounded-3xl border border-stone-200/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-8 md:p-10">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+              {/* Left Column: Text & Badges */}
+              <div className="md:col-span-7 space-y-6">
+                <div>
+                  <span className="text-xs font-extrabold uppercase tracking-widest text-[#9a6420]">
+                    Cam Kết Chất Lượng
+                  </span>
+                  <h2 className="text-2xl font-black text-stone-900 mt-2">
+                    {cert.title}
+                  </h2>
+                  <p className="text-stone-500 mt-3 text-sm sm:text-base leading-relaxed font-medium">
+                    {cert.desc}
+                  </p>
+                </div>
+                
+                {/* Standards list */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { icon: "🛡️", title: "Kiểm nghiệm ATTP", desc: "Không chứa vi sinh vật gây hại" },
+                    { icon: "🧪", title: "Không chất bảo quản", desc: "100% tự nhiên tốt cho sức khỏe" },
+                    { icon: "🍃", title: "Nguyên liệu tuyển chọn", desc: "Từ vùng trồng hữu cơ Sơn La" },
+                    { icon: "🏭", title: "Sản xuất khép kín", desc: "Quy trình sấy nhiệt thấp hiện đại" }
+                  ].map((std) => (
+                    <div key={std.title} className="flex gap-3 items-start">
+                      <span className="text-xl shrink-0">{std.icon}</span>
+                      <div>
+                        <h4 className="font-bold text-xs text-stone-900">{std.title}</h4>
+                        <p className="text-[11px] text-stone-500">{std.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column: Certificate Preview Card */}
+              <div className="md:col-span-5 flex justify-center">
+                <div 
+                  onClick={() => setShowCertModal(true)}
+                  className="group cursor-pointer relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 w-full max-w-[260px] aspect-[3/4] bg-stone-100 border border-stone-200"
+                  style={{ border: "6px solid #fff" }}
+                >
+                  <img
+                    src={cert.imgUrl}
+                    alt={cert.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-stone-900/0 group-hover:bg-stone-900/20 transition-colors duration-500 flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg bg-white text-stone-800">
+                      🔎 Click để phóng to
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── Related Products ── */}
         {relatedProducts.length > 0 && (
           <div className="mt-20 space-y-8">
@@ -360,6 +451,44 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         )}
 
       </main>
+
+      {/* Lightbox Modal for Product Certificate */}
+      {showCertModal && cert && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-md transition-opacity duration-300"
+          onClick={() => setShowCertModal(false)}
+        >
+          <button 
+            className="absolute top-6 right-6 w-12 h-12 rounded-full flex items-center justify-center text-white text-2xl transition-all duration-300 hover:bg-white/10 hover:scale-110"
+            onClick={() => setShowCertModal(false)}
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+          
+          <div 
+            className="relative max-w-3xl w-full max-h-[85vh] flex flex-col items-center bg-white rounded-3xl overflow-hidden shadow-2xl p-4 sm:p-6 md:p-8 animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-full mb-4 text-center">
+              <h3 className="text-xl font-bold text-stone-900">{cert.title}</h3>
+              <p className="text-xs text-stone-500 mt-1">{cert.subtitle}</p>
+            </div>
+            
+            <div className="relative overflow-auto max-h-[60vh] w-full flex justify-center rounded-lg bg-stone-50 p-2">
+              <img 
+                src={cert.imgUrl} 
+                alt={cert.title} 
+                className="max-h-[58vh] object-contain rounded shadow-sm"
+              />
+            </div>
+            
+            <div className="w-full mt-4 text-center text-sm text-stone-600 max-w-xl font-medium">
+              {cert.desc}
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
