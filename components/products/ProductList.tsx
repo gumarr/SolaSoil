@@ -292,9 +292,14 @@ export default function ProductList({ products, onProductDragStart, onProductCli
                       {product.desc}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="font-extrabold text-xs" style={{ color: "#d4922b" }}>
-                        {product.price}
-                      </span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-extrabold text-xs" style={{ color: "#d4922b" }}>
+                          {product.price}
+                        </span>
+                        <span className="text-[9px] text-stone-400 line-through">
+                          {Math.round(product.priceNum * 1.2).toLocaleString('vi-VN')}đ
+                        </span>
+                      </div>
                       <span
                         className="text-[9px] font-medium px-1.5 py-0.5 rounded"
                         style={{ background: "rgba(47,86,50,0.07)", color: "#4d8550" }}

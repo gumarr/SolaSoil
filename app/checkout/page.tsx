@@ -65,7 +65,25 @@ export default function CheckoutPage() {
   ]
 
   const subtotal = allItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const shippingFee = 30000
+
+  // Kiểm tra địa chỉ giao hàng có thuộc Hà Nội hay không
+  const checkIsHanoi = (address: string): boolean => {
+    if (!address) return false
+    const normalized = address
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[đĐ]/g, 'd')
+    return (
+      normalized.includes('ha noi') ||
+      normalized.includes('hanoi') ||
+      /\bhn\b/i.test(normalized)
+    )
+  }
+
+  const isHanoi = checkIsHanoi(formData.shippingAddress)
+  const isFreeShipping = isHanoi || subtotal >= 300000
+  const shippingFee = isFreeShipping ? 0 : 30000
   const total = subtotal + shippingFee
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -260,10 +278,21 @@ export default function CheckoutPage() {
                   <span>Tạm tính</span>
                   <span>{subtotal.toLocaleString('vi-VN')}đ</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between items-center text-gray-600">
                   <span>Phí vận chuyển</span>
-                  <span>{shippingFee.toLocaleString('vi-VN')}đ</span>
+                  {shippingFee === 0 ? (
+                    <span className="text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-lg text-sm border border-green-200">
+                      Miễn phí
+                    </span>
+                  ) : (
+                    <span>{shippingFee.toLocaleString('vi-VN')}đ</span>
+                  )}
                 </div>
+                {shippingFee === 0 && (
+                  <div className="text-right text-xs text-green-600 font-medium -mt-1">
+                    {isHanoi ? '🎉 Ưu đãi miễn phí vận chuyển cho Hà Nội' : '🎉 Miễn phí vận chuyển cho đơn hàng từ 300.000đ'}
+                  </div>
+                )}
                 <div className="flex justify-between text-xl font-black text-gray-900 pt-3 border-t border-gray-100">
                   <span>Tổng cộng</span>
                   <span className="text-green-800">{total.toLocaleString('vi-VN')}đ</span>
