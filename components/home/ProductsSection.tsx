@@ -261,12 +261,17 @@ export default function ProductsSection({
                     {p.desc}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span
-                      className="font-extrabold text-base"
-                      style={{ color: "#d4922b" }}
-                    >
-                      {p.price}
-                    </span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span
+                        className="font-extrabold text-base"
+                        style={{ color: "#d4922b" }}
+                      >
+                        {p.price}
+                      </span>
+                      <span className="text-xs text-gray-400 line-through">
+                        {Math.round(p.priceNum * 1.2).toLocaleString('vi-VN')}đ
+                      </span>
+                    </div>
                     <span
                       className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
                       style={{

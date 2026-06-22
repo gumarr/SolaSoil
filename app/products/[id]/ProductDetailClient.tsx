@@ -187,9 +187,15 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             <div className="h-px bg-stone-200/80" />
 
             <div className="space-y-2">
-              <div className="flex items-baseline gap-3">
+              <div className="flex items-baseline gap-3.5">
                 <span className="text-3xl font-black text-[#d4922b]">
                   {product.price}
+                </span>
+                <span className="text-lg text-stone-400 line-through font-medium">
+                  {Math.round(product.priceNum * 1.2).toLocaleString('vi-VN')}đ
+                </span>
+                <span className="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg">
+                  Giảm 17%
                 </span>
               </div>
               <p className="text-sm text-stone-400 font-medium">
@@ -436,9 +442,14 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                       <Link href={`/products/${p.id}`}>{p.name}</Link>
                     </h3>
                     <div className="flex items-center justify-between mt-auto">
-                      <span className="font-extrabold text-xs text-[#d4922b]">
-                        {p.price}
-                      </span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-extrabold text-xs text-[#d4922b]">
+                          {p.price}
+                        </span>
+                        <span className="text-[9px] text-stone-400 line-through">
+                          {Math.round(p.priceNum * 1.2).toLocaleString('vi-VN')}đ
+                        </span>
+                      </div>
                       <span className="text-[9px] font-bold text-[#4d8550] bg-[#4d8550]/5 px-2 py-0.5 rounded">
                         {p.weight}
                       </span>

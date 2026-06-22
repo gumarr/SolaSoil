@@ -376,11 +376,16 @@ export default function ProductsView({ products, categoryTabs }: ProductsViewPro
                           style={{ borderTop: "1px solid rgba(201,222,202,0.25)" }}
                         >
                           <div>
-                            <p className="font-extrabold text-lg leading-none"
-                              style={{ color: "#d4922b" }}>
-                              {p.price}
-                            </p>
-                            <p className="text-xs mt-1" style={{ color: "#9dc49e" }}>
+                            <div className="flex items-baseline gap-1.5 leading-none">
+                              <p className="font-extrabold text-lg"
+                                style={{ color: "#d4922b" }}>
+                                {p.price}
+                              </p>
+                              <span className="text-xs text-gray-400 line-through">
+                                {Math.round(p.priceNum * 1.2).toLocaleString('vi-VN')}đ
+                              </span>
+                            </div>
+                            <p className="text-xs mt-1.5" style={{ color: "#9dc49e" }}>
                               {p.weight}
                             </p>
                           </div>
