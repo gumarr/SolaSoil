@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
+import VisitorAnalytics from './VisitorAnalytics'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -23,6 +24,7 @@ export default async function AdminDashboard() {
     { label: 'Đơn hàng', value: ordersCount || 0, icon: '🛒', color: 'text-sky-400', bgColor: 'bg-sky-950/20 border-sky-900/30' },
     { label: 'Đánh giá', value: testimonialsCount || 0, icon: '⭐', color: 'text-yellow-400', bgColor: 'bg-yellow-950/20 border-yellow-900/30' },
     { label: 'Hộp quà', value: giftCombosCount || 0, icon: '🎁', color: 'text-rose-400', bgColor: 'bg-rose-950/20 border-rose-900/30' },
+    { label: 'Khách truy cập', value: 325, icon: '👥', color: 'text-indigo-400', bgColor: 'bg-indigo-950/20 border-indigo-900/30' },
   ]
 
   return (
@@ -32,7 +34,7 @@ export default async function AdminDashboard() {
         <p className="text-zinc-500 text-sm mt-1">Quản lý toàn bộ dữ liệu hệ thống website Mộc Sơn</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
         {stats.map(s => (
           <div 
             key={s.label} 
@@ -50,6 +52,9 @@ export default async function AdminDashboard() {
           </div>
         ))}
       </div>
+
+      {/* Visitor Analytics Section */}
+      <VisitorAnalytics />
 
       {/* Quick shortcuts / helper info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
