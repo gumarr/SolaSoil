@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import payos from '@/utils/payos';
+import { sendOrderNotificationEmail } from '@/lib/mail';
 
 export async function POST(request: Request) {
   try {
@@ -129,6 +130,15 @@ export async function POST(request: Request) {
 
     const { error: itemsError } = await supabaseAdmin.from('order_items').insert(orderItems);
     if (itemsError) throw itemsError;
+
+    // Gửi email thông báo cho Admin (chạy ngầm không block phản hồi)
+    try {
+      sendOrderNotificationEmail(order, items).catch((err) => {
+        console.error('SMTP Background Email send error:', err);
+      });
+    } catch (e) {
+      console.error('SMTP Email trigger error:', e);
+    }
 
     // 3. Handle Payment Method
     if (paymentMethod === 'payos') {
