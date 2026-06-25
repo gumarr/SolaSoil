@@ -13,12 +13,14 @@ import {
   Gift, 
   MessageSquare,
   Leaf,
-  LogOut
+  LogOut,
+  ShoppingCart
 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Tổng quan', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Sản phẩm', icon: Package },
+  { href: '/admin/orders', label: 'Đơn hàng', icon: ShoppingCart },
   { href: '/admin/categories', label: 'Danh mục', icon: Folder },
   { href: '/admin/testimonials', label: 'Đánh giá', icon: Star },
   { href: '/admin/gift-combos', label: 'Hộp quà', icon: Gift },

@@ -248,3 +248,17 @@ export async function deleteGiftCombo(id: string) {
   revalidatePath('/admin/gift-combos')
   return { success: true }
 }
+
+export async function updateOrderStatus(id: string, status: string) {
+  const { supabase } = await requireAdmin()
+  const { error } = await supabase
+    .from('orders')
+    .update({ status })
+    .eq('id', id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/admin')
+  revalidatePath('/admin/orders')
+  return { success: true }
+}
+
