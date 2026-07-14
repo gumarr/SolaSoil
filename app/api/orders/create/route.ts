@@ -12,10 +12,12 @@ export async function POST(request: Request) {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    const supabaseAdmin = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
+      ? createSupabaseClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY
+        )
+      : supabase;
 
     // Helper to validate UUID format to prevent FK errors with old localStorage data
     const isUUID = (str: any) => typeof str === 'string' && str.length === 36;
