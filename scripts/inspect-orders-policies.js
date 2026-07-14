@@ -2,7 +2,12 @@ require('dotenv').config({ path: '.env.local' });
 const { Client } = require('pg');
 
 async function main() {
-  const client = new Client({ connectionString: process.env.DATABASE_URL || process.env.DIRECT_URL });
+  const connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL;
+  console.log('Connecting to:', connectionString ? connectionString.split('@')[1] : 'undefined');
+  const client = new Client({ 
+    connectionString,
+    ssl: { rejectUnauthorized: false }
+  });
   await client.connect();
   const res = await client.query(`
     SELECT schemaname, tablename, policyname, roles, cmd, qual, with_check 

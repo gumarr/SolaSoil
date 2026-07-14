@@ -7,12 +7,17 @@ const policies = [
   { table: 'gift_combos', name: 'Admin write gift_combos' },
   { table: 'testimonials', name: 'Admin write testimonials' },
   { table: 'site_config', name: 'Admin write site_config' },
-  { table: 'orders', name: 'Admin read all orders', cmd: 'SELECT' }
+  { table: 'orders', name: 'Admin read all orders', cmd: 'SELECT' },
+  { table: 'orders', name: 'Admin update orders', cmd: 'UPDATE' }
 ];
 
 async function main() {
   const action = process.argv[2]; // 'drop' or 'create'
-  const client = new Client({ connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL });
+  const connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL;
+  const client = new Client({ 
+    connectionString,
+    ssl: { rejectUnauthorized: false }
+  });
   await client.connect();
 
   if (action === 'drop') {

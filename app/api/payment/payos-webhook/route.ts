@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
 import payos from '@/utils/payos';
 
 export async function POST(request: Request) {
@@ -20,17 +19,26 @@ export async function POST(request: Request) {
 
     // code === '00' means payment was successful
     if (code === '00') {
-      const supabase = await createClient();
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (!serviceRoleKey) {
+        console.error('SUPABASE_SERVICE_ROLE_KEY is missing in environment variables. Cannot update order status.');
+      } else {
+        const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createSupabaseClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          serviceRoleKey
+        );
 
-      // Find the order with 'awaiting_payment' status and update to 'paid'
-      // We search by matching the payment timing since orderCode is derived from timestamp
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({ status: 'paid' })
-        .eq('status', 'awaiting_payment');
+        // Find the order with 'awaiting_payment' status and update to 'paid'
+        // We search by matching the payment timing since orderCode is derived from timestamp
+        const { error: updateError } = await supabaseAdmin
+          .from('orders')
+          .update({ status: 'paid' })
+          .eq('status', 'awaiting_payment');
 
-      if (updateError) {
-        console.error('Error updating order status:', updateError);
+        if (updateError) {
+          console.error('Error updating order status:', updateError);
+        }
       }
     }
 
